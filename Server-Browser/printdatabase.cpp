@@ -178,7 +178,7 @@ const Json::Value PrintDatabase::QueryByName(const QString &Name) {
   try {
     Json::Value v;
     QString querySql =
-        QString(R"(SELECT * FROM PrinterConfigInfo where Name=%1)").arg(Name);
+        QString(R"(SELECT * FROM PrinterConfigInfo where Name='%1')").arg(Name);
     if (_query->exec(querySql)) {
       while (_query->next()) {
         Json::Value v1;

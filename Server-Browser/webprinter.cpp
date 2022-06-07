@@ -131,6 +131,7 @@ void WebPrinter::SlotPrintFinshed(bool isSuccess) {
   } else {
     std::get<3>(_currentpage)(false, QString("预期之外的异常，打印失败！"));
   }
+  _render_view.stop();
   _timeout_listen.stop();
   ToPrint();
 }

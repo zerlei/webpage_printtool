@@ -16,7 +16,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core PrintSupport WebSockets WebEngineCore 
 aux_source_directory(server SERVER)
 
 
-add_executable(PrintWebPage
+add_executable(PrintWebPage WIN32
   main.cpp
   webprinter.h
   webprinter.cpp
@@ -34,3 +34,4 @@ target_link_libraries(PrintWebPage
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::Gui
     ${DROGON_LIBRARIES})
+add_link_options(PrintWebPage PRIVATE -mwindows)
