@@ -23,7 +23,7 @@ POST http://127.0.0.1:8847/PrintController/toprint
     "WebPages":
     [
         {
-            "Url":"http://127.0.0.1:5500/test.html",
+            "Url":"http://192.168.8.92:8088/P_Produce/BatchPrintMoCmd?MoCmdFormIds=SC-ZL2022060058",
             "PrintMode":"JsPrintRequest",
             "Name":"test"
         }
@@ -32,3 +32,20 @@ POST http://127.0.0.1:8847/PrintController/toprint
 
 ###
 GET http://127.0.0.1:8847/PrintController/getscreeninfo
+
+
+###  LoadAchieve JsPrintRequest
+
+POST http://127.0.0.1:8847/PrintController/toprint 
+
+
+{
+    "WebPages":
+    [
+        {
+            "Url":"http://www.bing.com",
+            "PrintMode":"LoadAchieve",
+            "Name":"t4"
+        }
+    ]
+}

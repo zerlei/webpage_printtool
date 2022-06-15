@@ -12,16 +12,28 @@
 
     <h1>ttsdffs</h1>
     <h1>tgddsss</h1>
+    <button onclick="p()">
+        点我
+
+    </button>
+    <iframe id="ifr" style="visibility: hidden;">
+
+    </iframe>
 
 </body>
 
 </html>
 <script type="text/javascript">
+    function p() {
+        //document.getElementById('ifr').src='http://192.168.8.92:8088/P_Produce/BatchPrintMoCmd?MoCmdFormIds=SC-ZL2022060058'
+        document.getElementById('ifr').src='test.html'
+        console.log(window.location.href)
+    }
 
     //chrome://flags/#block-insecure-private-network-requests
 
     //Access-Control-Request-Private-Network: true
-    console.log (window.location.href)
+
 
     // let ob = {}
     // ob.WebPages = []

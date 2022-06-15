@@ -65,22 +65,22 @@ void WebPrinter::ToPrint() {
           pagelayout.setPageSize(y);
           pagelayout.setMargins(std::get<4>(current));
           pagelayout.setOrientation(std::get<5>(current));
-          QPrinter *currentPrinter = nullptr;
           bool ishasIn = false;
           for (auto &_p : _printers) {
             if (_p->printerName() == x.printerName()) {
               ishasIn = true;
-              currentPrinter = _p;
+              _current_print = _p;
               break;
             }
           }
           if (!ishasIn) {
-            currentPrinter = new QPrinter(x, QPrinter::HighResolution);
-            _printers.push_back(currentPrinter);
+            _current_print = new QPrinter(x, QPrinter::HighResolution);
+            _printers.push_back(_current_print);
           }
+          _current_print->setPageLayout(pagelayout);
 
           _currentpage =
-              std::make_tuple(std::get<0>(current), currentPrinter,
+              std::make_tuple(std::get<0>(current), _current_print,
                               std::get<2>(current), std::get<6>(current));
           _timeout_listen.start(200000);
           _render_view.load(std::get<0>(_currentpage));
@@ -130,6 +130,9 @@ void WebPrinter::SlotPrintFinshed(bool isSuccess) {
     std::get<3>(_currentpage)(true, QString());
   } else {
     std::get<3>(_currentpage)(false, QString("预期之外的异常，打印失败！"));
+
+    _printers.removeAt( _printers.indexOf(_current_print));
+    delete _current_print;
   }
   _render_view.stop();
   _timeout_listen.stop();
