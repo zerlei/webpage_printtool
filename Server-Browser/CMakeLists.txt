@@ -24,6 +24,8 @@ add_executable(PrintWebPage WIN32
   printdatabase.cpp
   printmsgstation.h
   printmsgstation.cpp
+  slwebsoc.h
+  slwebsoc.cpp
   ${SERVER}
 )
 target_link_libraries(PrintWebPage
@@ -33,5 +35,6 @@ target_link_libraries(PrintWebPage
     Qt${QT_VERSION_MAJOR}::WebEngineWidgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::WebSockets
     ${DROGON_LIBRARIES})
 add_link_options(PrintWebPage PRIVATE -mwindows)

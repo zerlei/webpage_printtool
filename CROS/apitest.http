@@ -49,3 +49,7 @@ POST http://127.0.0.1:8847/PrintController/toprint
         }
     ]
 }
+
+###
+
+GET http://localhost:44377/R_Produce/GetMaterialRecordReport?page=1&rows=6000
