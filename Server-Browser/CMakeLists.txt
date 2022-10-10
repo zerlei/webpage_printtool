@@ -16,7 +16,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core PrintSupport WebSockets WebEngineCore 
 aux_source_directory(server SERVER)
 
 
-add_executable(PrintWebPage WIN32
+add_executable(PrintWebPage 
+
+ WIN32
   main.cpp
   webprinter.h
   webprinter.cpp

@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QWebSocket>
 #include <functional>
+#include <QWidget>
 
 class SLWebsoc  : public QObject
 {

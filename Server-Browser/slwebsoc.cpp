@@ -16,7 +16,7 @@ void SLWebsoc::OpenUrl(const QUrl& url)
 {
     _webSoc.close(QWebSocketProtocol::CloseCodeNormal);
 
-    if(_webSoc.is)
+    // if(_webSoc.is)
 
 }
 
@@ -33,7 +33,7 @@ void SLWebsoc::SlotOnConnect()
 void SLWebsoc::SlotDisConnect()
 {
 
-    _webSoc.open(url);
+    // _webSoc.open(url);
 
 }
 

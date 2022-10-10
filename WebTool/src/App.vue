@@ -1,7 +1,7 @@
 <script setup>
 
 import { defineExpose, defineEmits, ref, h } from 'vue'
-import { darkTheme,NMenu, NScrollbar,NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
+import { darkTheme, NMenu, NScrollbar, NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
 import { RouterLink } from 'vue-router'
 
 // import {
@@ -12,10 +12,8 @@ import { RouterLink } from 'vue-router'
 
 const currentSelect = ref("config")
 const menuOptions = ref([
-
   {
     label: () =>
-
       h(
         RouterLink,
         {
@@ -24,15 +22,10 @@ const menuOptions = ref([
             params: {
               lang: 'zh-CN'
             }
-
           }
         }
         , { default: () => '配置' }
-
-      )
-
-
-    ,
+      ),
     key: "config",
   },
   {
@@ -48,15 +41,11 @@ const menuOptions = ref([
           params: {
             lang: 'zh-CN'
           }
-        }
-        , { default: () => '关于' }
-
-      )
-    ,
+        },
+        { default: () => '关于' }
+      ),
     key: "about"
   }
-
-
 ])
 
 </script>
@@ -77,7 +66,6 @@ const menuOptions = ref([
 
             </NConfigProvider>
           </div>
-
           <n-scrollbar id="mainregion">
             <router-view v-slot="{ Component }">
               <keep-alive>
@@ -104,9 +92,10 @@ const menuOptions = ref([
 #leftmenu {
   width: 10%;
   height: 100%;
-  background-color:rgb(40,40,40);
+  background-color: rgb(40, 40, 40);
 
 }
+
 #mainregion {
   width: 90%;
   background-color: beige;

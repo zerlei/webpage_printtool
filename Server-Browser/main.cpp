@@ -15,18 +15,17 @@ using namespace drogon;
 
 int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
-  if(argc<=1) {
-      return 0;
-  }
+  //  if(argc<=1) {
+  //      return 0;
+  //  }
 
-
-  std::string docoment_root = argv[1];
+  std::string docoment_root = "./";
 
   // qDebug()<<QString("导出为WPS PDF");
 
   PrintMsgStation print;
 
-  std::thread i([&print,&docoment_root]() {
+  std::thread i([&print, &docoment_root]() {
     auto controller = std::make_shared<PrintController>(print);
     auto websocket = std::make_shared<PrintWebSocket>();
     app()
