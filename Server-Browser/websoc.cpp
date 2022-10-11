@@ -20,7 +20,45 @@ void Websoc::OpenUrl(const QUrl &url) {
   // if(_webSoc.is)
 }
 
-void Websoc::SlotReceiveMsg(const QString &message) {}
+void Websoc::SlotReceiveMsg(const QString &message) {
+
+
+  Json::Reader reader;
+  Json::Value jsob;
+  if(reader.parse(message.str(),jsob)) {
+
+    auto msgtype = jsob["msgtype"]
+  if(msgtype.isNull()) {
+    return
+  }
+
+  auto msgtype_str = msgtype.toString();
+
+  if(msgtype_str == "GetPrintInfo") {
+
+  } else if(msgtype_str == "AddOnePrintConfig") {
+
+  } else if(msgtype_str == "DelOnePrintConfig") {
+
+  } else if(msgtype_str == "UpdateOnePrintConfig") {
+
+  } else if(msgtype_str == "GetPrintConfigs") {
+
+  } else if (msgtype_str == "ToPrint") {
+    
+  }
+
+  }
+
+
+  QJsonObject jsob = QJsonDocument::fromJson(Msg.toUtf8()).object();
+
+  
+  
+
+
+
+}
 
 void Websoc::SlotOnConnect() {}
 
