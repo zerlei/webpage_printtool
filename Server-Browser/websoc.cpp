@@ -1,7 +1,7 @@
 #include "websoc.h"
 #include "printmsgstation.h"
 
-Websoc::Websoc(PrintMsgStation &printmsgstation)
+Websoc::Websoc(PrintMsgStation* printmsgstation)
     : _print_msg_station(printmsgstation) {
 
   _webSoc.ignoreSslErrors();

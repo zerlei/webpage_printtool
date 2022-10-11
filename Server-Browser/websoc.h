@@ -9,14 +9,14 @@ class PrintMsgStation;
 class Websoc : public QObject {
   Q_OBJECT
 public:
-  Websoc(PrintMsgStation& printmsgstation);
+  Websoc(PrintMsgStation* printmsgstation);
 
   void OpenUrl(const QUrl &url);
 
 private:
   QWebSocket _webSoc;
   QUrl _url;
-  PrintMsgStation& _print_msg_station;
+  PrintMsgStation* _print_msg_station;
 
 private slots:
   void SlotReceiveMsg(const QString &message);
