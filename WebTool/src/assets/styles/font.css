@@ -1,0 +1,45 @@
+@font-face {
+    font-family: "姚体";
+    src: url("../../assets/font/FZYTK.TTF");
+}
+
+@font-face {
+    font-family: "颜宋简体";
+    src: url("../../assets/font/FZYanSJW.TTF");
+}
+
+@font-face {
+    font-family: "楷体";
+    src: url("../../assets/font/simkai.ttf");
+}
+
+@font-face {
+    font-family: "中宋";
+    src: url("../../assets/font/STZHONGS.TTF");
+}
+@font-face {
+    font-family: "准颜简体";
+    src: url("../../assets/font/FZY3JW.TTF");
+}
+
+@font-face {
+    font-family: "一线天";
+    src: url("../../assets/font/FZYiXTJW-R.TTF");
+}
+
+@font-face {
+    font-family: "赵孟頫楷书";
+    src: url("../../assets/font/FZZhaoMFKSJF.TTF");
+}
+
+@font-face {
+    font-family: "Nerd Fonts";
+    src: url("../../assets/font/Caskaydia\ Cove\ Nerd\ Font\ Complete\ Mono.ttf");
+}
+
+@font-face {
+    font-family: "柳公权楷体";
+    src: url("../../assets/font/FZLiuGQKSJW.TTF");
+}
+
+

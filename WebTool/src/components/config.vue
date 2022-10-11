@@ -9,7 +9,7 @@ import {
 } from 'naive-ui'
 import { Add } from "@vicons/ionicons5";
 
-import { ref, onMounted, h} from 'vue'
+import { ref, onMounted, h } from 'vue'
 import configModal from './configModal.vue'
 const dialog = useDialog();
 const _configModal = ref(null)
@@ -139,7 +139,7 @@ function GetPrinterConfigInfo() {
     fetch('http://127.0.0.1:8847/PrintController/GetPrintConfigs')
         .then(response => response.json())
         .then(data => {
-            if(data == null) {
+            if (data == null) {
                 tableData.value = []
                 return
             }
@@ -169,20 +169,25 @@ onMounted(() => {
 <template>
     <configModal ref="_configModal" @reload="GetPrinterConfigInfo" style="width: 1000px;height: 440px;">
     </configModal>
-    <n-space style="margin-top: 2vh;">
-        <n-button type="info" v-on:click="add">
-            <template #icon>
-                <n-icon :size="20" :component="Add"></n-icon>
-            </template>
-            添加
-        </n-button>
+    <div style="min-height: 100vh;padding-left: 30px;padding-right: 30px;">
+        <n-space style="margin-top: 2vh;">
+            <n-button type="info" v-on:click="add">
+                <template #icon>
+                    <n-icon :size="20" :component="Add"></n-icon>
+                </template>
+                添加
+            </n-button>
 
-    </n-space>
-    <div style="height: 20px;"></div>
-    <n-data-table :columns="columns" :data="tableData" :bordered="false" :min-height="600" />
-    
+        </n-space>
+        <div style="height: 20px;"></div>
+        <n-data-table :columns="columns" :data="tableData" />
+
+    </div>
+
+
 
 </template>
 
 <style>
+
 </style>

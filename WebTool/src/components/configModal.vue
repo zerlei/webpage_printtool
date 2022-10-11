@@ -347,7 +347,7 @@ defineExpose({
 </template>
 <style>
 #configModal {
-    background-color: aliceblue;
+    background-color: #2c2c32;
     border-radius: 10px;
     padding: 20px;
 }

@@ -51,7 +51,7 @@ const menuOptions = ref([
 </script>
 
 <template>
-  <NConfigProvider>
+  <NConfigProvider :theme="darkTheme">
     <NMessageProvider>
       <NDialogProvider>
 
@@ -91,16 +91,116 @@ const menuOptions = ref([
 
 #leftmenu {
   width: 10%;
-  height: 100%;
-  background-color: rgb(40, 40, 40);
+  /* height: 100%; */
+  background-color: #18181c;
 
 }
 
 #mainregion {
-  width: 90%;
-  background-color: beige;
-  padding-left: 30px;
-  padding-right: 30px;
+  width: 100%;
+  background-color: #0d1117;
   max-height: 100vh;
+}
+
+.markdown-body p {
+  font-family: "颜宋简体";
+}
+
+.markdown-body li {
+  font-family: "楷体";
+}
+
+.markdown-body pre {
+  /* max-height: 1000px; */
+  scroll-behavior: auto;
+  padding: 0;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  font-size: 1px;
+  max-width: 150px;
+}
+.markdown-body code {
+  color: #ed5736;
+}
+
+.markdown-body pre code {
+  font-family: "Consolas";
+  color: white !important;
+}
+
+.markdown-body blockquote p {
+  font-family: "柳公权楷体";
+  background-color: rgb(40, 40, 40);
+  border-radius: 5px;
+  padding-left: 1%;
+}
+
+.markdown-body h1 {
+  background-color: brown;
+  border-radius: 5px;
+  padding-left: 2%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.markdown-body h2 {
+  background-color: #405f86;
+  border-radius: 5px;
+  padding-left: 2%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.markdown-body h3 {
+  background-color: #8a703c;
+  border-radius: 5px;
+  padding-left: 2%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-left: 1%;
+}
+
+.markdown-body h4 {
+  background-color: #647c68;
+  border-radius: 5px;
+  padding-left: 2%;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-left: 1.5%;
+
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+.markdown-body .mermaid {
+  display: flex;
+  justify-content: center;
+  background-color: antiquewhite;
+}
+
+.markdown-body .ContainImg {
+  display: flex;
+  justify-content: center;
+}
+
+/*定义滚动条轨道
+ 内阴影+圆角*/
+::-webkit-scrollbar-track {
+  /* box-shadow:inset 0 0 6px rgba(0,0,0,0.3); */
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+/*定义滑块
+ 内阴影+圆角*/
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #555;
 }
 </style>
