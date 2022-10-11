@@ -26,8 +26,8 @@ add_executable(PrintWebPage
   printdatabase.cpp
   printmsgstation.h
   printmsgstation.cpp
-  slwebsoc.h
-  slwebsoc.cpp
+  websoc.h
+  websoc.cpp
   ${SERVER}
 )
 target_link_libraries(PrintWebPage

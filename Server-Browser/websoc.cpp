@@ -1,7 +1,11 @@
 #include "websoc.h"
 #include "printmsgstation.h"
+#include <json/json.h>
+#include <json/value.h>
+#include <json/writer.h>
+#include <memory>
 
-Websoc::Websoc(PrintMsgStation* printmsgstation)
+Websoc::Websoc(PrintMsgStation *printmsgstation)
     : _print_msg_station(printmsgstation) {
 
   _webSoc.ignoreSslErrors();
@@ -22,42 +26,64 @@ void Websoc::OpenUrl(const QUrl &url) {
 
 void Websoc::SlotReceiveMsg(const QString &message) {
 
-
   Json::Reader reader;
   Json::Value jsob;
-  if(reader.parse(message.str(),jsob)) {
+  if (reader.parse(message.toStdString(), jsob)) {
+    auto msgtype = jsob["msgtype"];
+    if (msgtype.isNull()) {
+      return;
+    }
+    Json::FastWriter fw;
 
-    auto msgtype = jsob["msgtype"]
-  if(msgtype.isNull()) {
-    return
+    auto msgtype_str = msgtype.asString();
+
+    if (msgtype_str == "GetPrintInfo") {
+      _webSoc.sendTextMessage(QString::fromStdString(
+          fw.write(_print_msg_station->GetPrintInfo(true))));
+
+    } else if (msgtype_str == "AddOnePrintConfig") {
+
+      if (jsob["Data"].isObject()) {
+         auto json = std::make_shared<Json::Value>();
+        *json = jsob["Data"];
+        _webSoc.sendTextMessage(QString::fromStdString(
+            fw.write(_print_msg_station->AddOnePrintConfig(json))));
+      }
+
+    } else if (msgtype_str == "DelOnePrintConfig") {
+
+      if (jsob["Data"].isInt()) {
+        _webSoc.sendTextMessage(QString::fromStdString(fw.write(
+            _print_msg_station->DelOnePrintConfig(jsob["Data"].asInt()))));
+      }
+
+    } else if (msgtype_str == "UpdateOnePrintConfig") {
+
+      if (jsob["Data"].isObject()) {
+        auto json = std::make_shared<Json::Value>();
+        *json = jsob["Data"];
+        _webSoc.sendTextMessage(QString::fromStdString(
+            fw.write(_print_msg_station->UpdateOnePrintConfig(json))));
+      }
+
+    } else if (msgtype_str == "GetPrintConfigs") {
+      _webSoc.sendTextMessage(QString::fromStdString(
+          fw.write(_print_msg_station->GetPrintConfigs())));
+
+    } else if (msgtype_str == "ToPrint") {
+
+      if (jsob["Data"].isObject()) {
+        auto f = [this](const Json::Value &v) {
+          Json::FastWriter fw;
+          this->_webSoc.sendTextMessage(QString::fromStdString(fw.write(v)));
+        };
+        auto json = std::make_shared<Json::Value>();
+        *json = jsob["Data"];
+        _print_msg_station->ToPrint(json,
+                                    f);
+      }
+    }
   }
-
-  auto msgtype_str = msgtype.toString();
-
-  if(msgtype_str == "GetPrintInfo") {
-
-  } else if(msgtype_str == "AddOnePrintConfig") {
-
-  } else if(msgtype_str == "DelOnePrintConfig") {
-
-  } else if(msgtype_str == "UpdateOnePrintConfig") {
-
-  } else if(msgtype_str == "GetPrintConfigs") {
-
-  } else if (msgtype_str == "ToPrint") {
-    
-  }
-
-  }
-
-
-  QJsonObject jsob = QJsonDocument::fromJson(Msg.toUtf8()).object();
-
-  
-  
-
-
-
 }
 
 void Websoc::SlotOnConnect() {}
