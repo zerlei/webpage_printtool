@@ -24,7 +24,8 @@ const currentStatus = ref('process')
 const beforedisabled = ref(true)
 const Printercolumns = ref([
     {
-        type: 'selection'
+        type: 'selection',
+        multiple: false,
     },
     {
         title: "打印机名称",
@@ -35,7 +36,8 @@ const PrinterData = ref([])
 const PrinterChecked = ref([])
 const Papercolumns = ref([
     {
-        type: 'selection'
+        type: 'selection',
+        multiple: false,
     },
     {
         title: "纸张名称",
@@ -79,7 +81,7 @@ const railStyle = ref(({
 const Orientation = ref(true)
 const Name = ref("")
 const NameInputStatus = ref("success")
-const NameInputPh = ref("英文是最吼的")
+const NameInputPh = ref("英文~")
 
 let PrinterInfoData = []
 let type_ = 'add'
@@ -96,61 +98,22 @@ watch(Name, (n, o) => {
 //#region 显示效果
 function acceptNext() {
     if (currentStep.value == 1) {
-        if (PrinterChecked.value.length > 1) {
-            dialog.warning({
-                title: '警告',
-                content: '只需要选择一个~',
-                positiveText: '好的',
-                onPositiveClick: () => {
 
+        PrinterInfoData.forEach(e => {
+            if (e.PrinterName == PrinterChecked.value[0]) {
+
+                PaperData.value = e.Papers
+
+                if( PaperData.value.length>0 && PaperChecked.value.length == 0) {
+                    PaperChecked.value = [PaperData.value[0].Id]
                 }
-            })
-            return
-
-        } else if (PrinterChecked.value.length == 0) {
-            dialog.warning({
-                title: '警告',
-                content: '需要选择一个打印机~',
-                positiveText: '好的',
-                onPositiveClick: () => {
-
-                }
-            })
-            return
-        } else {
-            PrinterInfoData.forEach(e => {
-                if (e.PrinterName == PrinterChecked.value[0]) {
-
-                    PaperData.value = e.Papers
-                }
-            })
-            currentStep.value = currentStep.value + 1
-            beforedisabled.value = false
-            return
-
-        }
+            }
+        })
+        currentStep.value = currentStep.value + 1
+        beforedisabled.value = false
+        return
 
     } else if (currentStep.value == 2) {
-        if (PaperChecked.value.length > 1) {
-            dialog.warning({
-                title: '警告',
-                content: '只需要选择一个~',
-                positiveText: '好的',
-                onPositiveClick: () => {
-                }
-            })
-            return
-
-        } else if (PaperChecked.value.length == 0) {
-            dialog.warning({
-                title: '警告',
-                content: '需要选择一个纸张~',
-                positiveText: '好的',
-                onPositiveClick: () => {
-                }
-            })
-            return
-        }
         acceptinfo.value = "确定"
         currentStep.value = currentStep.value + 1
         return
@@ -159,7 +122,7 @@ function acceptNext() {
     if (currentStep.value == 3) {
         if (Name.value == "" || Name.value == null) {
             NameInputStatus.value = 'error'
-            NameInputPh.value = "❌😢，名字！"
+            NameInputPh.value = "❌,输入名字！"
             return
         }
         let ob = {}
@@ -190,7 +153,6 @@ function acceptNext() {
                             onPositiveClick: () => {
                             }
                         })
-
                         showModal.value = false
                         currentStep.value = 1
                         acceptinfo.value = "下一步"
@@ -252,11 +214,9 @@ function acceptBefore() {
 
     currentStep.value = currentStep.value - 1
     acceptinfo.value = "下一步"
-
     if (currentStep.value == 1) {
         beforedisabled.value = true
     }
-
 }
 
 function cancle() {
@@ -281,12 +241,14 @@ function showOrHide(from, row) {
             Bottom: row.BottomMargin
         }
         Name.value = row.Name
-
         PrinterChecked.value = [`${row.PrinterName}`]
         PrinterInfoData.forEach(e => {
             if (e.PrinterName == row.PrinterName) {
                 PaperData.value = e.Papers
 
+                // if(PaperData.value.length>0) {
+                //     PaperChecked.value = [PaperData[0].Id]
+                // }
                 e.Papers.forEach(e2 => {
                     if (e2.PaperName == row.PaperName) {
                         PaperChecked.value = [e2.Id]
@@ -314,16 +276,16 @@ function setPrintInfoData(data) {
         PrinterData.value.push(ob)
 
     });
+    if (PrinterData.value.length > 0) {
+        PrinterChecked.value.push(PrinterData.value[0].PrinterName)
+    }
+
 }
 defineExpose({
     showOrHide,
     setPrintInfoData
 })
-
-
-
 </script>
-
 <template>
 
     <n-modal v-model:show="showModal" id="configModal" :mask-closable="false">
@@ -380,15 +342,9 @@ defineExpose({
                     {{ acceptinfo }}
                 </n-button>
             </n-space>
-
         </n-space>
-
-
-
     </n-modal>
-
 </template>
-
 <style>
 #configModal {
     background-color: aliceblue;
