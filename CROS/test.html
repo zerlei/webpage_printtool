@@ -9,6 +9,9 @@
 </head>
 
 <body>
+	<h1>test</h1>
+	<div style="background-color: red;width: 1000px;height: 800px; "></div>
+	
 
 </body>
 
@@ -23,19 +26,9 @@
 
 //Access-Control-Request-Private-Network: true
 
-	fetch('http://127.0.0.1:8847/PrintController/getprintinfo?isUpdate=false', {
-
-		method: 'GET',
-		mode: 'cors',
-		headers: {
-			'access-control-allow-private-network': true,
-			'Access-Control-Allow-Origin':'*'
-
-		}
-
-	})
-		.then(response => response.json())
-		.then(data => console.log(data[0].name));
+setTimeout(()=>{
+window.print()
+},1000)
 
 
 </script>

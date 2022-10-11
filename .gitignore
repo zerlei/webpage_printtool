@@ -26,3 +26,4 @@ lerna-debug.log*
 
 /Server-Browser/bin
 /Server-Browser/Debug
+/Server-Browser/build

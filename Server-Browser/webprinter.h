@@ -84,6 +84,9 @@ private:
 
   QList<QPrinter *> _printers;
 
+
+  QPrinter* _current_print{nullptr};
+
   /// 渲染页面
   /// \brief _render_view
   ///

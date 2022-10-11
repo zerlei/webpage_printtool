@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PrintWebPage",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/PrintWebPage.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "E:/dev/Qt/6.3.2/msvc2019_64/bin"
+                }
+            ],
+            "visualizerFile": "c:\\Users\\Zhao-\\AppData\\Roaming\\Code\\User\\workspaceStorage\\8b169e74466de42676004556d4a7d062\\tonka3000.qtvsctools\\qt.natvis.xml"
+        }
+    ]
+}

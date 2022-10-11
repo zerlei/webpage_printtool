@@ -1,0 +1,12 @@
+{
+    "cmake.configureSettings": {
+        "CMAKE_MAKE_PROGRAM": "E:/bin/ninja.exe",
+        "CMAKE_PREFIX_PATH":"E:/dev/Qt/6.3.2/msvc2019_64",
+        "CMAKE_PROJECT_INCLUDE_BEFORE":"E:/dev/Qt/Tools/QtCreator/share/qtcreator/package-manager/auto-setup.cmake",
+        "QT_DIR":"E:/dev/Qt/6.3.2/msvc2019_64/lib/cmake/Qt6",
+        "QT_QMAKE_EXECUTABLE":"E:/dev/Qt/6.3.2/msvc2019_64/bin/qmake.exe",
+        "CMAKE_TOOLCHAIN_FILE":"C:/src/vcpkg/scripts/buildsystems/vcpkg.cmake"
+    },
+    "cmake.generator": "Ninja",
+    "cmake.configureOnOpen": true
+}

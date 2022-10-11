@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <h1>ttsdffs</h1>
+    <h1>tgddsss</h1>
+    <button onclick="p()">
+        点我
+
+    </button>
+    <iframe id="ifr" style="visibility: hidden;">
+
+    </iframe>
+
+</body>
+
+</html>
+<script type="text/javascript">
+    function p() {
+        //document.getElementById('ifr').src='http://192.168.8.92:8088/P_Produce/BatchPrintMoCmd?MoCmdFormIds=SC-ZL2022060058'
+        document.getElementById('ifr').src='test.html'
+        console.log(window.location.href)
+    }
+
+    //chrome://flags/#block-insecure-private-network-requests
+
+    //Access-Control-Request-Private-Network: true
+
+
+    // let ob = {}
+    // ob.WebPages = []
+    // ob.WebPages.push({
+    //     Url: 'http://127.0.0.1:5500/test.html',
+    //     PrintMode: "JsPrintRequest",
+    //     Name: "test"
+
+    // })
+
+    // fetch('http://127.0.0.1:8847/PrintController/toprint', {
+
+    //     method: "POST",
+    //     body: JSON.stringify(ob)
+    // }).then(response => response.json()).then(data => {
+
+
+    //     console.log(data)
+    // })
+
+
+</script>

@@ -1,0 +1,55 @@
+### test
+GET http://127.0.0.1:8847/PrintController/Test
+
+
+
+###  纸张
+
+GET http://127.0.0.1:8847/PrintController/getprintinfo?isUpdate=true
+
+
+
+### 打印机配置信息
+
+GET http://127.0.0.1:8847/PrintController/GetPrintConfigs
+
+
+###  LoadAchieve
+
+POST http://127.0.0.1:8847/PrintController/toprint 
+
+
+{
+    "WebPages":
+    [
+        {
+            "Url":"http://192.168.8.92:8088/P_Produce/BatchPrintMoCmd?MoCmdFormIds=SC-ZL2022060058",
+            "PrintMode":"JsPrintRequest",
+            "Name":"test"
+        }
+    ]
+}
+
+###
+GET http://127.0.0.1:8847/PrintController/getscreeninfo
+
+
+###  LoadAchieve JsPrintRequest
+
+POST http://127.0.0.1:8847/PrintController/toprint 
+
+
+{
+    "WebPages":
+    [
+        {
+            "Url":"http://www.bing.com",
+            "PrintMode":"LoadAchieve",
+            "Name":"t4"
+        }
+    ]
+}
+
+###
+
+GET http://localhost:44377/R_Produce/GetMaterialRecordReport?page=1&rows=6000
