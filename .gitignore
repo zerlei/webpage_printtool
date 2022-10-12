@@ -27,3 +27,4 @@ lerna-debug.log*
 
 /server/build
 /server/.cache
+/server/uploads
