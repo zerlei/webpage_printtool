@@ -7,13 +7,13 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-/WebTool/node_modules
-/WebTool/dist
-/WebTool/dist-ssr
+/webtool/node_modules
+/webtool/dist
+/webtool/dist-ssr
 *.local
 # Editor directories and files
-/WebTool/.vscode/*
-/WebTool/!.vscode/extensions.json
+/webtool/.vscode/*
+/webtool/!.vscode/extensions.json
 .idea
 .DS_Store
 *.suo
@@ -21,9 +21,9 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.
 
 
 
-/Server-Browser/bin
-/Server-Browser/Debug
-/Server-Browser/build
+/server/build
+/server/.cache
