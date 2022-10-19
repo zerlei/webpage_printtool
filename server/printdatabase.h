@@ -21,6 +21,10 @@ public:
   const Json::Value Query(int Id = -1);
   const Json::Value QueryByName(const QString &Name);
 
+  const Json::Value GetPrintedPage(int size,int page);
+
+  void InsertPrintedPage(const Json::Value& ob);
+
 private:
   QSqlDatabase _db;
   std::unique_ptr<QSqlQuery> _query;

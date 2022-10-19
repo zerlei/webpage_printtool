@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <functional>
 
+
 class PrintMsgStation;
 class Websoc : public QObject {
   Q_OBJECT

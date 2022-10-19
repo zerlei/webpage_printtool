@@ -1,5 +1,6 @@
 #include "printdatabase.h"
 #include <QApplication>
+#include <json/value.h>
 
 PrintDatabase::PrintDatabase() {
   _db = QSqlDatabase::addDatabase("QSQLITE");
@@ -18,7 +19,7 @@ std::tuple<bool, std::string> PrintDatabase::Insert(const Json::Value &ob) {
 
   try {
     QString queryExit =
-        QString(R"(SELECT 1 FROM PrinterConfigInfo where Name ='%1';)")
+        QString(R"(SELECT 1 FROM printer_config where Name ='%1';)")
             .arg(ob["Name"].asCString());
     if (_query->exec(queryExit)) {
       if (_query->next()) {
@@ -28,7 +29,7 @@ std::tuple<bool, std::string> PrintDatabase::Insert(const Json::Value &ob) {
 
     QString insertSql =
         QString(R"(
-                  INSERT INTO PrinterConfigInfo (
+                  INSERT INTO printer_config (
                                   Name,
                                   PrinterName,
                                   TopMargin,
@@ -72,7 +73,7 @@ std::tuple<bool, std::string> PrintDatabase::Del(const int Id) {
 
   try {
     QString delSql =
-        QString(R"(delete from PrinterConfigInfo where Id = %1;)").arg(Id);
+        QString(R"(delete from printer_config where Id = %1;)").arg(Id);
 
     if (_query->exec(delSql)) {
       return std::make_tuple(true, "");
@@ -89,7 +90,7 @@ std::tuple<bool, std::string> PrintDatabase::Update(const Json::Value &ob) {
   try {
     QString updateSql =
         QString(R"(
-                update PrinterConfigInfo
+                update printer_config
                        set Name = '%1',
                        PrinterName = '%2',
                        PaperName = '%3',
@@ -122,8 +123,8 @@ const Json::Value PrintDatabase::Query(int Id) {
   try {
     Json::Value v;
     QString querySql;
-    if (Id == -1) { //查询全部
-      querySql = QString(R"(SELECT * FROM PrinterConfigInfo)");
+    if (Id == -1) { // 查询全部
+      querySql = QString(R"(SELECT * FROM printer_config)");
       if (_query->exec(querySql)) {
         while (_query->next()) {
           Json::Value v1;
@@ -144,8 +145,7 @@ const Json::Value PrintDatabase::Query(int Id) {
       }
 
     } else {
-      querySql =
-          QString(R"(SELECT * FROM PrinterConfigInfo where Id=%1)").arg(Id);
+      querySql = QString(R"(SELECT * FROM printer_config where Id=%1)").arg(Id);
       if (_query->exec(querySql)) {
         while (_query->next()) {
           Json::Value v1;
@@ -178,7 +178,7 @@ const Json::Value PrintDatabase::QueryByName(const QString &Name) {
   try {
     Json::Value v;
     QString querySql =
-        QString(R"(SELECT * FROM PrinterConfigInfo where Name='%1')").arg(Name);
+        QString(R"(SELECT * FROM printer_config where Name='%1')").arg(Name);
     if (_query->exec(querySql)) {
       while (_query->next()) {
         Json::Value v1;
@@ -199,5 +199,57 @@ const Json::Value PrintDatabase::QueryByName(const QString &Name) {
   } catch (...) {
     Json::Value v;
     return v;
+  }
+}
+
+const Json::Value PrintDatabase::GetPrintedPage(int page_size_,
+                                                int page_index_) {
+  try {
+    Json::Value v;
+    QString query_sql = QString(R"(
+   select  * from printed_page order by Id limit %1 offset %2
+  )")
+                            .arg(page_size_)
+                            .arg(page_size_ * page_index_);
+
+    if (_query->exec(query_sql)) {
+      while (_query->next()) {
+        Json::Value v1;
+        v1["Id"] = _query->value(0).toInt();
+        v1["PrintTime"] = _query->value(1).toString().toStdString();
+        v1["FromId"] = _query->value(2).toString().toStdString();
+        v1["FromType"] = _query->value(3).toString().toStdString();
+        v1["PageName"] = _query->value(4).toString().toStdString();
+        v1["ConfigId"] = _query->value(5).toInt();
+        v1["PrintMode"] = _query->value(6).toString().toStdString();
+        v1["IsSuccess"] = _query->value(7).toBool();
+        v.append(v1);
+      }
+    }
+    return v;
+
+  } catch (...) {
+    Json::Value v;
+    return v;
+  }
+}
+
+void PrintDatabase::InsertPrintedPage(const Json::Value &ob) {
+  try {
+    QString query_sql =
+        QString(R"(
+          insert into printed_page 
+          (PrintTime,FromIp,FromType,PageName,ConfigId,PrintMode,IsSuccess)
+          values('%1','%2','%3','%4',%5,'%6',%7)
+  )")
+            .arg(ob["PrintTime"].asCString(), ob["FromIp"].asCString(),
+                 ob["FromType"].asCString(), ob["PageName"].asCString())
+            .arg(ob["ConfigId"].asInt())
+            .arg(ob["PrintMode"].asCString())
+            .arg(ob["IsSuccess"].asBool());
+
+    if (_query->exec(query_sql)) {
+    }
+  } catch (...) {
   }
 }

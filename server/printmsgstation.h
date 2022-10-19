@@ -21,6 +21,8 @@ public:
                std::function<void(const Json::Value &)>);
   const Json::Value GetScreenInfo();
 
+  const Json::Value GetPrintedPage(int size,int page);
+
 public:
   WebPrinter _print;
   PrintDatabase _db;

@@ -11,28 +11,43 @@
 // #include <memory>
 // #include <thread>
 // using namespace drogon;
+
+#include <ctime>
 #include <iostream>
-#include <json/json.h>
-#include <json/writer.h>
+#include <locale>
+ 
+int main()
+{
+    std::locale::global(std::locale("ja_JP.utf8"));
+    std::time_t t = std::time(NULL);
+    char mbstr[100];
+    if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&t))) {
+        std::cout << mbstr << '\n';
+    }
+}
+
+// #include <iostream>
+// #include <json/json.h>
+// #include <json/writer.h>
 
 
 
-int main(int argc, char *argv[]) {
+// int main(int argc, char *argv[]) {
 
-  std::string str{"{\"hi\":1}"};
-  Json::Reader reader;
-  Json::FastWriter f;
+//   std::string str{"{\"hi\":1}"};
+//   Json::Reader reader;
+//   Json::FastWriter f;
 
-  Json::Value jsob;
+//   Json::Value jsob;
 
-  if (reader.parse(str, jsob)) {
-    auto x = std::string(jsob.toStyledString());
+//   if (reader.parse(str, jsob)) {
+//     auto x = std::string(jsob.toStyledString());
 
-    bool b1 = jsob["hi"].isNull();
-    bool b2 = jsob["Hi"].isNull();
-    std::string x1 = f.write(jsob);
-  }
-  return 0;
+//     bool b1 = jsob["hi"].isNull();
+//     bool b2 = jsob["Hi"].isNull();
+//     std::string x1 = f.write(jsob);
+//   }
+//   return 0;
 
   // return 0;
 
@@ -104,4 +119,4 @@ int main(int argc, char *argv[]) {
   //    });
 
   // return a.exec();
-}
+// }

@@ -1,6 +1,8 @@
 #include "printmsgstation.h"
 #include <QGuiApplication>
 #include <QScreen>
+#include <json/value.h>
+#include <memory>
 
 PrintMsgStation::PrintMsgStation() {}
 
@@ -75,9 +77,9 @@ const Json::Value PrintMsgStation::GetPrintConfigs() { return _db.Query(); }
 void PrintMsgStation::ToPrint(
     std::shared_ptr<Json::Value> json,
     std::function<void(const Json::Value &)> callback) {
-  auto list = (*json)["WebPages"];
+  auto list = std::make_shared<Json::Value>((*json)["WebPages"]);
 
-  auto size = list.size();
+  auto size = list->size();
   if (size == 0) {
     Json::Value v;
     Json::Value errValue;
@@ -91,19 +93,21 @@ void PrintMsgStation::ToPrint(
   auto i = std::make_shared<int>();
   *i = 0;
   auto respValue = std::make_shared<Json::Value>();
-  auto f = [callback, size, i, respValue](bool isSuccess,
+  auto f = [callback, size, i, respValue,list](bool isSuccess,
                                           const QString &message) {
     Json::Value subValue;
     subValue["isSuccess"] = isSuccess;
     subValue["message"] = message.toStdString();
     respValue->append(subValue);
+
+    
     *i = *i + 1;
     if (*i == size) {
       callback(*respValue);
     }
   };
 
-  for (auto &x : list) {
+  for (auto &x : *list) {
 
     const auto url = QString::fromStdString(x["Url"].asString());
     auto mode = x["PrintMode"].asString() == "LoadAchieve"
