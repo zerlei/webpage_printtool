@@ -9,7 +9,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Drogon)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 REQUIRED COMPONENTS Core PrintSupport WebSockets WebEngineCore WebEngineWidgets Sql Gui)
 
@@ -18,7 +18,7 @@ aux_source_directory(server SERVER)
 
 add_executable(PrintWebPage 
 
- WIN32
+  WIN32
   main.cpp
   webprinter.h
   webprinter.cpp

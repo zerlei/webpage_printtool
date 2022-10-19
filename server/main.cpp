@@ -12,18 +12,38 @@
 // #include <thread>
 // using namespace drogon;
 
-#include <ctime>
 #include <iostream>
-#include <locale>
- 
+ #include <chrono>
+ #include <ctime>
+ #include <iomanip>
+#include <string>
+#include <time.h>
+#include <format>
+ using namespace std::literals;
+ #define _CRT_SECURE_NO_WARNINGS
 int main()
 {
-    std::locale::global(std::locale("ja_JP.utf8"));
-    std::time_t t = std::time(NULL);
-    char mbstr[100];
-    if (std::strftime(mbstr, sizeof(mbstr), "%A %c", std::localtime(&t))) {
-        std::cout << mbstr << '\n';
-    }
+  const std::chrono::time_point<std::chrono::system_clock> now =
+        std::chrono::system_clock::now();
+
+
+auto f =         std::format("{0:%F} {0:%T}", now);
+// const std::time_t t_c = std::chrono::system_clock::to_time_t(now - 24h);
+//               tm tm;
+// // auto v = std::localtime(&t_c);
+
+
+// localtime_s(&tm,&t_c);
+
+
+// auto vv =  std::put_time(&tm, "%F %T.\n");
+
+// std::string str(vv._Tptr->tm_year);
+//  std::cout << "24 hours ago, the time was "
+//               << vv._Fmtfirst << std::flush;
+
+
+
 }
 
 // #include <iostream>
