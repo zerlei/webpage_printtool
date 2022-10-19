@@ -21,7 +21,7 @@ public:
   virtual void handleConnectionClosed(const WebSocketConnectionPtr &) override;
 
   WS_PATH_LIST_BEGIN
-  WS_PATH_ADD("/websocet", Get)
+  WS_PATH_ADD("/websocet", Get);
   WS_PATH_LIST_END
 
 
