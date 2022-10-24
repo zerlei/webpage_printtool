@@ -1,6 +1,6 @@
 #ifndef PRINTMSGSTATION_H
 #define PRINTMSGSTATION_H
-#include "printdatabase.h"
+#include "../data_sqlite/printdatabase.h"
 #include "webprinter.h"
 #include <QObject>
 #include <functional>

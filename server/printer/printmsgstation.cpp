@@ -25,7 +25,7 @@ const Json::Value PrintMsgStation::GetPrintInfo(bool isUpdate) {
       PrinterInfoPage["Id"] = y.id();
       auto mmSize = y.size(QPageSize::Millimeter);
       QString size =
-          QString("%1x%2mm").arg(mmSize.width()).arg(mmSize.height());
+          QString("%1_%2mm").arg(mmSize.width()).arg(mmSize.height());
       PrinterInfoPage["PaperSize"] = size.toStdString();
       PrinterInfoPages.append(PrinterInfoPage);
     }

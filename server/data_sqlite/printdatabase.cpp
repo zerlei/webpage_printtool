@@ -1,6 +1,10 @@
 #include "printdatabase.h"
+#include "base.h"
 #include <QApplication>
-#include <json/value.h>
+#include <algorithm>
+#include <cmath>
+#include <format>
+#include <vector>
 
 PrintDatabase::PrintDatabase() {
   _db = QSqlDatabase::addDatabase("QSQLITE");
@@ -15,20 +19,20 @@ PrintDatabase::PrintDatabase() {
   }
 }
 
-std::tuple<bool, std::string> PrintDatabase::Insert(const Json::Value &ob) {
+std::tuple<bool, std::string>
+PrintDatabase::printerConfigInsert(const PrinterConfig &pc) {
 
   try {
     QString queryExit =
         QString(R"(SELECT 1 FROM printer_config where Name ='%1';)")
-            .arg(ob["Name"].asCString());
+            .arg(QString::fromStdString(pc.Name));
     if (_query->exec(queryExit)) {
       if (_query->next()) {
         return std::make_tuple(false, "不能有重复的名称！");
       }
     }
-
-    QString insertSql =
-        QString(R"(
+    auto insert_sql = std::format(
+        R"(
                   INSERT INTO printer_config (
                                   Name,
                                   PrinterName,
@@ -40,28 +44,21 @@ std::tuple<bool, std::string> PrintDatabase::Insert(const Json::Value &ob) {
                                   PaperName
                               )
                               VALUES (
-                              '%1',
-                              '%2',
-                               %3,
-                               %4,
-                               %5,
-                               %6,
-                              '%7',
-                              '%8'
+                              '{}',
+                              '{}',
+                               {},
+                               {},
+                               {},
+                               {},
+                              '{}',
+                              '{}'
                               );
-
-  )")
-            .arg(ob["Name"].asCString(), ob["PrinterName"].asCString())
-            .arg(ob["TopMargin"].asInt())
-            .arg(ob["BottomMargin"].asInt())
-            .arg(ob["LeftMargin"].asInt())
-            .arg(ob["RightMargin"].asInt())
-            .arg(ob["Orientation"].asCString(), ob["PaperName"].asCString());
-
-    if (_query->exec(insertSql)) {
+            )",
+        pc.Name, pc.PrinterName, pc.TopMargin, pc.BottomMargin, pc.LeftMargin,
+        pc.RightMargin, pc.Orientation, pc.PaperName);
+    if (_query->exec(QString::fromStdString(insert_sql))) {
       return std::make_tuple(true, "");
     }
-
     throw;
 
   } catch (...) {
@@ -69,7 +66,7 @@ std::tuple<bool, std::string> PrintDatabase::Insert(const Json::Value &ob) {
   }
 }
 
-std::tuple<bool, std::string> PrintDatabase::Del(const int Id) {
+std::tuple<bool, std::string> PrintDatabase::printerConfigDel(const int Id) {
 
   try {
     QString delSql =
@@ -86,29 +83,24 @@ std::tuple<bool, std::string> PrintDatabase::Del(const int Id) {
   }
 }
 
-std::tuple<bool, std::string> PrintDatabase::Update(const Json::Value &ob) {
+std::tuple<bool, std::string>
+PrintDatabase::printerConfigUpdate(const PrinterConfig &pc) {
   try {
-    QString updateSql =
-        QString(R"(
+    auto update_sql = std::format(R"(
                 update printer_config
-                       set Name = '%1',
-                       PrinterName = '%2',
-                       PaperName = '%3',
-                       Orientation = '%4',
-                       TopMargin = %5,
-                       BottomMargin = %6,
-                       LeftMargin = %7,
-                       RightMargin = %8
-                       where Id = %9)")
-            .arg(ob["Name"].asCString(), ob["PrinterName"].asCString(),
-                 ob["PaperName"].asCString(), ob["Orientation"].asCString())
-            .arg(ob["TopMargin"].asInt())
-            .arg(ob["BottomMargin"].asInt())
-            .arg(ob["LeftMargin"].asInt())
-            .arg(ob["RightMargin"].asInt())
-            .arg(ob["Id"].asInt());
-
-    if (_query->exec(updateSql)) {
+                       set Name = '{}',
+                       PrinterName = '{}',
+                       PaperName = '{}',
+                       Orientation = '{}',
+                       TopMargin = {},
+                       BottomMargin = {},
+                       LeftMargin = {},
+                       RightMargin = {}
+                       where Id = {})",
+                                  pc.Name, pc.PrinterName, pc.PaperName,
+                                  pc.Orientation, pc.TopMargin, pc.BottomMargin,
+                                  pc.LeftMargin, pc.RightMargin, pc.Id);
+    if (_query->exec(QString::fromStdString(update_sql))) {
       return std::make_tuple(true, "");
     } else {
       return std::make_tuple(false, _query->lastError().text().toStdString());
@@ -119,137 +111,87 @@ std::tuple<bool, std::string> PrintDatabase::Update(const Json::Value &ob) {
   }
 }
 
-const Json::Value PrintDatabase::Query(int Id) {
+const std::vector<PrinterConfig> &&
+PrintDatabase::printerConfigQueryById(int Id) {
+  std::vector<PrinterConfig> pcs;
   try {
-    Json::Value v;
     QString querySql;
     if (Id == -1) { // 查询全部
       querySql = QString(R"(SELECT * FROM printer_config)");
       if (_query->exec(querySql)) {
         while (_query->next()) {
-          Json::Value v1;
-          v1["Id"] = _query->value(0).toInt();
-          v1["Name"] = _query->value(1).toString().toStdString();
-          v1["TopMargin"] = _query->value(2).toInt();
-          v1["BottomMargin"] = _query->value(3).toInt();
-          v1["LeftMargin"] = _query->value(4).toInt();
-          v1["RightMargin"] = _query->value(5).toInt();
-          v1["Orientation"] = _query->value(6).toString().toStdString();
-          v1["PaperName"] = _query->value(7).toString().toStdString();
-          v1["PrinterName"] = _query->value(8).toString().toStdString();
-          v.append(v1);
+          pcs.push_back(PrinterConfig(_query.get()));
         }
-
-      } else {
-        return v;
       }
-
     } else {
       querySql = QString(R"(SELECT * FROM printer_config where Id=%1)").arg(Id);
       if (_query->exec(querySql)) {
         while (_query->next()) {
-          Json::Value v1;
-          v1["Id"] = _query->value(0).toInt();
-          v1["Name"] = _query->value(1).toString().toStdString();
-          v1["TopMargin"] = _query->value(2).toInt();
-          v1["BottomMargin"] = _query->value(3).toInt();
-          v1["LeftMargin"] = _query->value(4).toInt();
-          v1["RightMargin"] = _query->value(5).toInt();
-          v1["Orientation"] = _query->value(6).toString().toStdString();
-          v1["PaperName"] = _query->value(7).toString().toStdString();
-          v1["PrinterName"] = _query->value(8).toString().toStdString();
-          v.append(v1);
+          pcs.push_back(PrinterConfig(_query.get()));
         }
-
-      } else {
-        return v;
       }
     }
-
-    return v;
-
+    return std::move(pcs);
   } catch (...) {
-    Json::Value v;
-    return v;
+    return std::move(pcs);
   }
 }
 
-const Json::Value PrintDatabase::QueryByName(const QString &Name) {
+const std::vector<PrinterConfig> &&
+PrintDatabase::printerConfigQueryByName(const QString &Name) {
+  std::vector<PrinterConfig> pcs;
   try {
-    Json::Value v;
     QString querySql =
         QString(R"(SELECT * FROM printer_config where Name='%1')").arg(Name);
     if (_query->exec(querySql)) {
       while (_query->next()) {
-        Json::Value v1;
-        v1["Id"] = _query->value(0).toInt();
-        v1["Name"] = _query->value(1).toString().toStdString();
-        v1["TopMargin"] = _query->value(2).toInt();
-        v1["BottomMargin"] = _query->value(3).toInt();
-        v1["LeftMargin"] = _query->value(4).toInt();
-        v1["RightMargin"] = _query->value(5).toInt();
-        v1["Orientation"] = _query->value(6).toString().toStdString();
-        v1["PaperName"] = _query->value(7).toString().toStdString();
-        v1["PrinterName"] = _query->value(8).toString().toStdString();
-        v.append(v1);
+        pcs.push_back(PrinterConfig(_query.get()));
       }
     }
-    return v;
+    return std::move(pcs);
 
   } catch (...) {
-    Json::Value v;
-    return v;
+    return std::move(pcs);
   }
 }
 
-const Json::Value PrintDatabase::GetPrintedPage(int page_size_,
-                                                int page_index_) {
+const std::vector<PrintedPage> &&
+PrintDatabase::printedPageQuery(int page_size_, int page_index_) {
+  std::vector<PrintedPage> pps;
   try {
-    Json::Value v;
     QString query_sql = QString(R"(
    select  * from printed_page order by Id limit %1 offset %2
   )")
                             .arg(page_size_)
                             .arg(page_size_ * page_index_);
-
     if (_query->exec(query_sql)) {
       while (_query->next()) {
-        Json::Value v1;
-        v1["Id"] = _query->value(0).toInt();
-        v1["PrintTime"] = _query->value(1).toString().toStdString();
-        v1["FromId"] = _query->value(2).toString().toStdString();
-        v1["FromType"] = _query->value(3).toString().toStdString();
-        v1["PageName"] = _query->value(4).toString().toStdString();
-        v1["ConfigId"] = _query->value(5).toInt();
-        v1["PrintMode"] = _query->value(6).toString().toStdString();
-        v1["IsSuccess"] = _query->value(7).toBool();
-        v.append(v1);
+        pps.push_back(PrintedPage(_query.get()));
       }
     }
-    return v;
-
+    return std::move(pps);
   } catch (...) {
-    Json::Value v;
-    return v;
+    return std::move(pps);
   }
 }
 
-void PrintDatabase::InsertPrintedPage(const Json::Value &ob) {
+bool PrintDatabase::printedPageInsert(const PrintedPage &pp_) {
   try {
-    QString query_sql =
-        QString(R"(
+
+    auto query_sql =
+        std::format(R"(
           insert into printed_page 
           (PrintTime,FromIp,FromType,PageName,ConfigId,PrintMode,IsSuccess)
-          values('%1','%2','%3','%4',%5,'%6',%7)
-  )")
-            .arg(ob["PrintTime"].asCString(), ob["FromIp"].asCString(),
-                 ob["FromType"].asCString(), ob["PageName"].asCString())
-            .arg(ob["ConfigId"].asInt())
-            .arg(ob["PrintMode"].asCString())
-            .arg(ob["IsSuccess"].asBool());
+          values('{}','{}','{}','{}',{},'{}',{})
+  )",
+                    pp_.PrintTime, pp_.FromIp, pp_.FromType, pp_.PageName,
+                    pp_.ConfigId, pp_.PrintMode, pp_.IsSuccess);
 
-    if (_query->exec(query_sql)) {
+    if (_query->exec(QString::fromStdString(query_sql))) {
+      return true;
     }
+    return false;
   } catch (...) {
+    return false;
   }
 }
