@@ -75,7 +75,6 @@ std::tuple<bool, std::string> PrintDatabase::printerConfigDel(const int Id) {
     if (_query->exec(delSql)) {
       return std::make_tuple(true, "");
     }
-
     return std::make_tuple(false, "删除失败！");
 
   } catch (...) {
@@ -111,8 +110,7 @@ PrintDatabase::printerConfigUpdate(const PrinterConfig &pc) {
   }
 }
 
-const std::vector<PrinterConfig> &&
-PrintDatabase::printerConfigQueryById(int Id) {
+std::vector<PrinterConfig> &&PrintDatabase::printerConfigQueryById(int Id) {
   std::vector<PrinterConfig> pcs;
   try {
     QString querySql;
@@ -137,7 +135,7 @@ PrintDatabase::printerConfigQueryById(int Id) {
   }
 }
 
-const std::vector<PrinterConfig> &&
+std::vector<PrinterConfig> &&
 PrintDatabase::printerConfigQueryByName(const QString &Name) {
   std::vector<PrinterConfig> pcs;
   try {
@@ -155,8 +153,8 @@ PrintDatabase::printerConfigQueryByName(const QString &Name) {
   }
 }
 
-const std::vector<PrintedPage> &&
-PrintDatabase::printedPageQuery(int page_size_, int page_index_) {
+std::vector<PrintedPage> &&PrintDatabase::printedPageQuery(int page_size_,
+                                                           int page_index_) {
   std::vector<PrintedPage> pps;
   try {
     QString query_sql = QString(R"(

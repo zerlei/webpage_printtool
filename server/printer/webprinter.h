@@ -11,12 +11,7 @@
 #include <queue>
 #include <tuple>
 enum class PrintModel { LoadAchieve, JsPrintRequest };
-
 enum class PrintState { IsWorking, IsWaiting };
-
-///
-/// Url,PageName,PrintModel,QMarginF,
-///
 using WebPagePrintInfo = std::tuple<QUrl, QString, PrintModel, QString,
                                     QMarginsF, QPageLayout::Orientation,
                                     std::function<void(bool, const QString &)>>;
@@ -36,7 +31,7 @@ public:
   /// \param model
   ///
   void
-  AddPrintWebPageToQueue(const QUrl &url, const QString &printerInfoName,
+  addPrintWebPageToQueue(const QUrl &url, const QString &printerInfoName,
                          PrintModel model, const QString &PageName,
                          const QMarginsF &marginsF, QPageLayout::Orientation,
                          std::function<void(bool, const QString &)> callback);
@@ -44,16 +39,16 @@ public:
   /// \brief GetAvaliablePrinterInfo
   /// \return
   ///
-  const QList<QPrinterInfo> &GetAvaliablePrinterInfo();
+  const QList<QPrinterInfo> &getAvaliablePrinterInfo();
   /// 更新当前的打印机
   /// \brief UpdatePrinterInfo
   ///
-  void UpdatePrinterInfo();
+  void updatePrinterInfo();
 
   ///
   /// \brief StartWork
   ///
-  void StartWork();
+  void startWork();
 
 private:
   ///
@@ -84,8 +79,7 @@ private:
 
   QList<QPrinter *> _printers;
 
-
-  QPrinter* _current_print{nullptr};
+  QPrinter *_current_print{nullptr};
 
   /// 渲染页面
   /// \brief _render_view
@@ -102,35 +96,35 @@ private:
   ///
   /// \brief 打印当前网页
   ///
-  void ToPrint();
+  void toPrint();
 
 private slots:
   ///
   /// \brief 网页加载完毕打印
   ///
-  void SlotLoadFinishTorint(bool);
+  void slotLoadFinishTorint(bool);
   ///
   /// \brief Js window.print 调用打印页面
   ///
-  void SlotJsPrintRequestToPrint();
+  void slotJsPrintRequestToPrint();
 
   ///
   /// \brief SlotPrintRequestTimeOut
   ///
 
-  void SlotPrintRequestTimeOut();
+  void slotPrintRequestTimeOut();
 
   ///
   /// \brief 打印结束调用函数
   ///
 
-  void SlotPrintFinshed(bool);
+  void slotPrintFinshed(bool);
 
   /// 移动到GUI线程开启打印工作
   /// \brief SlotMoveToGUIThreadWork
   ///
 
-  void SlotMoveToGUIThreadWork();
+  void slotMoveToPrinterThreadWork();
 };
 
 #endif // WEBPRINTER_H

@@ -1,17 +1,23 @@
 #include "printmsgstation.h"
+#include "base.h"
 #include <QGuiApplication>
 #include <QScreen>
+#include <chrono>
+#include <drogon/HttpRequest.h>
+#include <format>
+#include <iomanip>
 #include <json/value.h>
 #include <memory>
+#include <time.h>
 
 PrintMsgStation::PrintMsgStation() {}
 
-const Json::Value PrintMsgStation::GetPrintInfo(bool isUpdate) {
+const Json::Value PrintMsgStation::getPrintInfo(bool isUpdate) {
   if (isUpdate) {
-    _print.UpdatePrinterInfo();
+    _print.updatePrinterInfo();
   }
   Json::Value PrinterInfoS;
-  for (auto &x : _print.GetAvaliablePrinterInfo()) {
+  for (auto &x : _print.getAvaliablePrinterInfo()) {
     Json::Value PrinterInfo;
     PrinterInfo["PrinterName"] =
         QString(x.printerName()).toUtf8().toStdString();
@@ -37,10 +43,10 @@ const Json::Value PrintMsgStation::GetPrintInfo(bool isUpdate) {
 }
 
 const Json::Value
-PrintMsgStation::AddOnePrintConfig(std::shared_ptr<Json::Value> json) {
+PrintMsgStation::addOnePrintConfig(std::shared_ptr<Json::Value> json) {
   Json::Value respValue;
   if (json) {
-    auto [isSuccess, message] = _db.Insert(*json);
+    auto [isSuccess, message] = _db.printerConfigInsert(*json);
     respValue["isSuccess"] = isSuccess;
     respValue["message"] = message;
   } else {
@@ -50,19 +56,19 @@ PrintMsgStation::AddOnePrintConfig(std::shared_ptr<Json::Value> json) {
   return respValue;
 }
 
-const Json::Value PrintMsgStation::DelOnePrintConfig(int Id) {
+const Json::Value PrintMsgStation::delOnePrintConfig(int Id) {
   Json::Value respValue;
-  auto [isSuccess, message] = _db.Del(Id);
+  auto [isSuccess, message] = _db.printerConfigDel(Id);
   respValue["isSuccess"] = isSuccess;
   respValue["message"] = message;
   return respValue;
 }
 
 const Json::Value
-PrintMsgStation::UpdateOnePrintConfig(std::shared_ptr<Json::Value> json) {
+PrintMsgStation::updateOnePrintConfig(std::shared_ptr<Json::Value> json) {
   Json::Value respValue;
   if (json) {
-    auto [isSuccess, message] = _db.Update(*json);
+    auto [isSuccess, message] = _db.printerConfigUpdate(*json);
     respValue["isSuccess"] = isSuccess;
     respValue["message"] = message;
   } else {
@@ -72,10 +78,16 @@ PrintMsgStation::UpdateOnePrintConfig(std::shared_ptr<Json::Value> json) {
   return respValue;
 }
 
-const Json::Value PrintMsgStation::GetPrintConfigs() { return _db.Query(); }
+const Json::Value PrintMsgStation::getPrintConfigs() {
+  Json::Value vs;
+  for (PrinterConfig &x : _db.printerConfigQueryById()) {
+    vs.append(x.getReflectionJson());
+  }
+  return vs;
+}
 
-void PrintMsgStation::ToPrint(
-    std::shared_ptr<Json::Value> json,
+void PrintMsgStation::toPrint(
+    std::shared_ptr<Json::Value> json, const std::string &ipinfo_,
     std::function<void(const Json::Value &)> callback) {
   auto list = std::make_shared<Json::Value>((*json)["WebPages"]);
 
@@ -84,23 +96,31 @@ void PrintMsgStation::ToPrint(
     Json::Value v;
     Json::Value errValue;
     errValue["isSuccess"] = false;
-    errValue["message"] = "你传的是什么";
+    errValue["message"] = "错误的数据格式";
     v.append(errValue);
-
     callback(v);
     return;
   }
   auto i = std::make_shared<int>();
   *i = 0;
   auto respValue = std::make_shared<Json::Value>();
-  auto f = [callback, size, i, respValue,list](bool isSuccess,
-                                          const QString &message) {
+  auto f = [callback, size, i, respValue, list, ipinfo_,
+            this](bool isSuccess, const QString &message) {
     Json::Value subValue;
     subValue["isSuccess"] = isSuccess;
     subValue["message"] = message.toStdString();
     respValue->append(subValue);
+    PrintedPage page;
+    page.IsSuccess = isSuccess;
+    page.PrintTime =
+        std::format("{0:%F} {0:%T}", std::chrono::system_clock::now());
+    page.FromIp = ipinfo_;
+    page.FromType = "HttpServer";
+    page.PageName = (*list)[*i]["Url"].asString();
+    page.ConfigId = (*list)[*i]["Id"].asInt();
+    page.PrintMode = (*list)[*i]["PrintMode"].asString();
+    _db.printedPageInsert(page);
 
-    
     *i = *i + 1;
     if (*i == size) {
       callback(*respValue);
@@ -113,42 +133,50 @@ void PrintMsgStation::ToPrint(
     auto mode = x["PrintMode"].asString() == "LoadAchieve"
                     ? PrintModel::LoadAchieve
                     : PrintModel::JsPrintRequest;
-    auto Name = x["Name"].asString();
+    auto Id = x["Id"].asInt();
 
-    const Json::Value value = _db.QueryByName(QString::fromStdString(Name));
+    auto printer_config = _db.printerConfigQueryById(Id);
 
-    if (value.empty()) {
+    if (printer_config.empty()) {
       f(false, "找不到对应的打印机配置~");
     } else {
       auto PrinterInfoName =
-          QString::fromStdString(value[0]["PrinterName"].asString());
+          QString::fromStdString(printer_config[0].PrinterName);
 
-      auto PageName = QString::fromStdString(value[0]["PaperName"].asString());
+      auto PageName = QString::fromStdString(printer_config[0].PaperName);
 
-      auto TopMargin = value[0]["TopMargin"].asDouble();
-      auto BottomMargin = value[0]["BottomMargin"].asDouble();
-      auto LeftMargin = value[0]["LeftMargin"].asDouble();
-      auto RightMargin = value[0]["RightMargin"].asDouble();
+      auto TopMargin = printer_config[0].TopMargin;
+      auto BottomMargin = printer_config[0].BottomMargin;
+      auto LeftMargin = printer_config[0].LeftMargin;
+      auto RightMargin = printer_config[0].RightMargin;
 
       QMarginsF margins(LeftMargin, TopMargin, RightMargin, BottomMargin);
 
       QPageLayout::Orientation Orientation_;
 
-      auto Orientation = value[0]["Orientation"].asString();
+      auto Orientation = printer_config[0].Orientation;
       if (Orientation == "横向") {
         Orientation_ = QPageLayout::Portrait;
       } else {
         Orientation_ = QPageLayout::Landscape;
       }
 
-      _print.AddPrintWebPageToQueue(QUrl(url), PrinterInfoName, mode, PageName,
+      _print.addPrintWebPageToQueue(QUrl(url), PrinterInfoName, mode, PageName,
                                     margins, Orientation_, f);
       emit _print.signalGuiThreadToWork();
     }
   }
 }
 
-const Json::Value PrintMsgStation::GetScreenInfo() {
+const Json::Value PrintMsgStation::getPrintedPage(int size_, int page_) {
+  Json::Value vs;
+  for (auto &x : _db.printedPageQuery(size_, page_)) {
+    vs.append(x.getReflectionJson());
+  }
+  return vs;
+}
+
+const Json::Value PrintMsgStation::getScreenInfo() {
   Json::Value v;
   for (auto &x : QGuiApplication::screens()) {
     Json::Value subV;
@@ -159,13 +187,5 @@ const Json::Value PrintMsgStation::GetScreenInfo() {
     subV["height"] = size.height();
     v.append(subV);
   }
-  //  const auto size = x->size();
-  //  auto X = size.width() / x->physicalDotsPerInchX();
-  //  auto Y = size.height() / x->physicalDotsPerInchY();
-
-  //  qDebug() << "显示器的英寸X：" << X;
-  //  qDebug() << "显示器的英寸Y：" << Y;
-  //  qDebug() << "显示器的英寸对角线：" << std::sqrt(X * X + Y * Y);
-
   return v;
 }

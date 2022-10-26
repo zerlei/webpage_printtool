@@ -70,6 +70,8 @@ struct PrinterConfig {
 };
 
 struct PrintedPage {
+  PrintedPage(){
+  };
 
   PrintedPage(Json::Value &page_) {
 

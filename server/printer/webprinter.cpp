@@ -15,21 +15,21 @@ WebPrinter::WebPrinter()
 
   //    }
   connect(&_render_view, &QWebEngineView::loadFinished, this,
-          &WebPrinter::SlotLoadFinishTorint);
+          &WebPrinter::slotLoadFinishTorint);
   connect(&_render_view, &QWebEngineView::printRequested, this,
-          &WebPrinter::SlotJsPrintRequestToPrint);
+          &WebPrinter::slotJsPrintRequestToPrint);
   connect(&_render_view, &QWebEngineView::printFinished, this,
-          &WebPrinter::SlotPrintFinshed);
+          &WebPrinter::slotPrintFinshed);
 
   connect(&_timeout_listen, &QTimer::timeout, this,
-          &WebPrinter::SlotPrintRequestTimeOut);
+          &WebPrinter::slotPrintRequestTimeOut);
 
   connect(this, &WebPrinter::signalGuiThreadToWork, this,
-          &WebPrinter::SlotMoveToGUIThreadWork, Qt::QueuedConnection);
+          &WebPrinter::slotMoveToPrinterThreadWork, Qt::QueuedConnection);
   //_timeout_listen.start(200000);
 }
 
-void WebPrinter::AddPrintWebPageToQueue(
+void WebPrinter::addPrintWebPageToQueue(
     const QUrl &url, const QString &printerInfoName, PrintModel model,
     const QString &PageName, const QMarginsF &marginsF,
     QPageLayout::Orientation oriention,
@@ -38,15 +38,15 @@ void WebPrinter::AddPrintWebPageToQueue(
                                     marginsF, oriention, callback));
 }
 
-const QList<QPrinterInfo> &WebPrinter::GetAvaliablePrinterInfo() {
+const QList<QPrinterInfo> &WebPrinter::getAvaliablePrinterInfo() {
   return _avaliable_printer_info;
 }
 
-void WebPrinter::UpdatePrinterInfo() {
+void WebPrinter::updatePrinterInfo() {
   _avaliable_printer_info = QPrinterInfo::availablePrinters();
 }
 
-void WebPrinter::ToPrint() {
+void WebPrinter::toPrint() {
   if (_webpagelist.empty()) {
 
     _currentState = PrintState::IsWaiting;
@@ -92,15 +92,15 @@ void WebPrinter::ToPrint() {
   return std::get<6>(current)(false, QString("没有找到匹配的打印机或者纸张！"));
 }
 
-void WebPrinter::StartWork() {
+void WebPrinter::startWork() {
   if (_currentState == PrintState::IsWorking) {
     return;
   }
   _currentState = PrintState::IsWorking;
-  ToPrint();
+  toPrint();
 }
 
-void WebPrinter::SlotLoadFinishTorint(bool isSuccess) {
+void WebPrinter::slotLoadFinishTorint(bool isSuccess) {
   if (isSuccess) {
     if (std::get<2>(_currentpage) == PrintModel::LoadAchieve) {
       return _render_view.print(std::get<1>(_currentpage));
@@ -111,21 +111,21 @@ void WebPrinter::SlotLoadFinishTorint(bool isSuccess) {
   }
 }
 
-void WebPrinter::SlotJsPrintRequestToPrint() {
+void WebPrinter::slotJsPrintRequestToPrint() {
   if (std::get<2>(_currentpage) == PrintModel::JsPrintRequest) {
     _render_view.print(std::get<1>(_currentpage));
   }
 }
 
-void WebPrinter::SlotPrintRequestTimeOut() {
+void WebPrinter::slotPrintRequestTimeOut() {
   ///
   ///
   ///可能是用户传递的页面存在问题
   std::get<3>(_currentpage)(false, QString("超时，打印失败！"));
-  ToPrint();
+  toPrint();
 }
 
-void WebPrinter::SlotPrintFinshed(bool isSuccess) {
+void WebPrinter::slotPrintFinshed(bool isSuccess) {
   if (isSuccess) {
     std::get<3>(_currentpage)(true, QString());
   } else {
@@ -136,7 +136,7 @@ void WebPrinter::SlotPrintFinshed(bool isSuccess) {
   }
   _render_view.stop();
   _timeout_listen.stop();
-  ToPrint();
+  toPrint();
 }
 
-void WebPrinter::SlotMoveToGUIThreadWork() { StartWork(); }
+void WebPrinter::slotMoveToPrinterThreadWork() { startWork(); }

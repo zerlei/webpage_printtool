@@ -11,17 +11,18 @@ class PrintMsgStation : QObject {
 public:
   PrintMsgStation();
 
-  const Json::Value GetPrintInfo(bool isUpdate);
-  const Json::Value AddOnePrintConfig(std::shared_ptr<Json::Value> json);
-  const Json::Value DelOnePrintConfig(int Id);
-  const Json::Value UpdateOnePrintConfig(std::shared_ptr<Json::Value> json);
-  const Json::Value GetPrintConfigs();
+  const Json::Value getPrintInfo(bool isUpdate);
+  const Json::Value addOnePrintConfig(std::shared_ptr<Json::Value> json);
+  const Json::Value delOnePrintConfig(int Id);
+  const Json::Value updateOnePrintConfig(std::shared_ptr<Json::Value> json);
+  const Json::Value getPrintConfigs();
 
-  void ToPrint(std::shared_ptr<Json::Value> json,
+  void toPrint(std::shared_ptr<Json::Value> json, const std::string &,
                std::function<void(const Json::Value &)>);
-  const Json::Value GetScreenInfo();
 
-  const Json::Value GetPrintedPage(int size,int page);
+  const Json::Value getPrintedPage(int size, int page);
+
+  const Json::Value getScreenInfo();
 
 public:
   WebPrinter _print;
