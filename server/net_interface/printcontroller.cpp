@@ -61,9 +61,6 @@ void PrintController::ToPrint(
     const HttpRequestPtr &req,
     std::function<void(const HttpResponsePtr &)> &&callback) {
   auto json = req->getJsonObject();
-  auto v = req->getLocalAddr();
-  //  v.toIp();
-
   auto f = [callback, this](const Json::Value &value) {
     callback(this->ConfigResponse(value));
   };
