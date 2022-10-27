@@ -189,3 +189,19 @@ const Json::Value PrintMsgStation::getScreenInfo() {
   }
   return v;
 }
+std::string PrintMsgStation::getWebsocketUrl() { return _db.getWebsocketUrl(); }
+bool PrintMsgStation::insertOrUpdateWebsocketUrl(
+    const std::string &websoc_url_) {
+  return _db.insertOrUpdateWebsocketUrl(websoc_url_);
+}
+
+void PrintMsgStation::setClientWebSockState(bool is_) {
+  _client_websoc_connected = is_;
+  Json::Value v;
+  v["MsgTyle"] = "WebSoc";
+  v["WebsocConnected"] = is_;
+  auto msg = _print_websoc->JsonValueToString(v);
+  for (auto &_ : _print_websoc->_webconnections) {
+    _->send(msg);
+  }
+}

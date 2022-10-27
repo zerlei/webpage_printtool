@@ -1,4 +1,6 @@
 #include "printcontroller.h"
+#include "net_interface/printcontroller.h"
+#include <json/value.h>
 #include <string>
 PrintController::PrintController(PrintMsgStation &printstation)
     : _printmsgstation(printstation) {}
@@ -82,6 +84,23 @@ void PrintController::GetScreenInfo(
     std::function<void(const HttpResponsePtr &)> &&callback) {
   callback(ConfigResponse(_printmsgstation.getScreenInfo()));
 }
+void PrintController::GetWebsocketUrl(
+    const HttpRequestPtr &,
+    std::function<void(const HttpResponsePtr &)> &&callback) {
+  Json::Value v;
+  v["url"] = _printmsgstation.getWebsocketUrl();
+  callback(ConfigResponse(v));
+}
+
+void PrintController::InsertOrUpdateWebsocketUrl(
+    const HttpRequestPtr &,
+    std::function<void(const HttpResponsePtr &)> &&callback,
+    std::string &&webspc_url_) {
+  Json::Value v;
+  v["isSuccess"] = _printmsgstation.insertOrUpdateWebsocketUrl(webspc_url_);
+  callback(ConfigResponse(v));
+}
+
 HttpResponsePtr PrintController::ConfigResponse(const Json::Value &value) {
   auto resp = HttpResponse::newHttpJsonResponse(value);
   resp->addHeader("Access-Control-Allow-Origin", "*");

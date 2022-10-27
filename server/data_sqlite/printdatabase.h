@@ -27,6 +27,9 @@ public:
   std::vector<PrintedPage> &&printedPageQuery(int page_size_, int page_index_);
   bool printedPageInsert(const PrintedPage &pp_);
 
+  std::string getWebsocketUrl();
+  bool insertOrUpdateWebsocketUrl(const std::string& );
+
 private:
   QSqlDatabase _db;
   std::unique_ptr<QSqlQuery> _query;

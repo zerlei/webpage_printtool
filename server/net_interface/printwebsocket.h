@@ -25,7 +25,7 @@ public:
   WS_PATH_LIST_END
 
 
- private:
+ public:
   std::list<WebSocketConnectionPtr> _webconnections;
   std::string JsonValueToString(const Json::Value&);
 

@@ -193,3 +193,42 @@ bool PrintDatabase::printedPageInsert(const PrintedPage &pp_) {
     return false;
   }
 }
+
+std::string PrintDatabase::getWebsocketUrl() {
+
+  try {
+    auto query_sql = "select * from websocket_url";
+    if (_query->exec(query_sql)) {
+      while (_query->next()) {
+        return _query->value(0).toString().toStdString();
+      }
+    }
+    return "";
+  } catch (...) {
+    return "";
+  }
+}
+
+bool PrintDatabase::insertOrUpdateWebsocketUrl(const std::string &websoc_url_) {
+  try {
+    auto query_sql1 = "select 1 from websocket_url";
+    if (_query->exec(query_sql1)) {
+      while (_query->next()) {
+        auto query_sql =
+            std::format("update websocket_url set WebsocketUrl='{}'",
+                        websoc_url_);
+        _query->exec(query_sql.c_str());
+        return true;
+      }
+    }
+    auto query_sql = std::format(
+        "insert into websocket_url(WebsocketUrl) values('{}')", websoc_url_);
+
+    _query->exec(query_sql.c_str());
+    return true;
+  }
+
+  catch (...) {
+    return false;
+  }
+}

@@ -25,6 +25,9 @@ public:
   METHOD_ADD(PrintController::GetScreenInfo, "/getscreeninfo", Get);
   METHOD_ADD(PrintController::GetPrintedPage,
              "/getPrintedPage?size={1}&page={2}", Get);
+  METHOD_ADD(PrintController::GetWebsocketUrl, "/GetWebsocketUrl", Get);
+  METHOD_ADD(PrintController::InsertOrUpdateWebsocketUrl,
+             "/InsertOrUpdateWebsocketUrl?websocurl={1}", Get);
   METHOD_LIST_END
 
 protected:
@@ -59,6 +62,13 @@ protected:
                       int &&size, int &&page);
   void GetScreenInfo(const HttpRequestPtr &,
                      std::function<void(const HttpResponsePtr &)> &&callback);
+
+  void GetWebsocketUrl(const HttpRequestPtr &,
+                       std::function<void(const HttpResponsePtr &)> &&callback);
+  void InsertOrUpdateWebsocketUrl(
+      const HttpRequestPtr &,
+      std::function<void(const HttpResponsePtr &)> &&callback,
+      std::string &&websocurl);
 
 private:
   HttpResponsePtr ConfigResponse(const Json::Value &value);

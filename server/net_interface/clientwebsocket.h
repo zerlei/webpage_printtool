@@ -1,30 +1,34 @@
 #ifndef SLWEBSOC_H
 #define SLWEBSOC_H
 #include <QObject>
+#include <QTimer>
 #include <QWebSocket>
 #include <QWidget>
 #include <functional>
-
+#include <qtimer.h>
 
 class PrintMsgStation;
 class Websoc : public QObject {
   Q_OBJECT
 public:
-  Websoc(PrintMsgStation* printmsgstation);
+  Websoc(PrintMsgStation *printmsgstation);
 
-  void OpenUrl(const QUrl &url);
+  void openUrl(const QUrl &url);
 
 private:
+  QTimer _timer;
   QWebSocket _webSoc;
   QUrl _url;
-  PrintMsgStation* _print_msg_station;
+  PrintMsgStation *_print_msg_station;
 
 private slots:
-  void SlotReceiveMsg(const QString &message);
-  void SlotOnConnect();
-  void SlotDisConnect();
-  void SlotErr(QAbstractSocket::SocketError error);
-  void SlotSSLErr(const QList<QSslError> &errors);
+  void slotTimerReConnect();
+
+  void slotReceiveMsg(const QString &message);
+  void slotOnConnect();
+  void slotDisConnect();
+  void slotErr(QAbstractSocket::SocketError error);
+  void slotSSLErr(const QList<QSslError> &errors);
 };
 
 #endif // SLWEBSOC_H
