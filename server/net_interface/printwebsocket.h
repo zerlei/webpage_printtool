@@ -6,14 +6,18 @@
 #include <drogon/WebSocketController.h>
 #include <drogon/utils/FunctionTraits.h>
 #include <json/value.h>
-#include <tuple>
 #include <list>
+#include <stdint.h>
+#include <string>
+#include <tuple>
+#include "../printer/printmsgstation.h"
+
 using namespace drogon;
 
-class PrintWebSocket : public WebSocketController<PrintWebSocket,false>
-{
+
+class PrintWebSocket : public WebSocketController<PrintWebSocket, false> {
 public:
-  PrintWebSocket();
+  PrintWebSocket( PrintMsgStation &);
   virtual void handleNewMessage(const WebSocketConnectionPtr &, std::string &&,
                                 const WebSocketMessageType &) override;
   virtual void handleNewConnection(const HttpRequestPtr &,
@@ -21,16 +25,13 @@ public:
   virtual void handleConnectionClosed(const WebSocketConnectionPtr &) override;
 
   WS_PATH_LIST_BEGIN
-  WS_PATH_ADD("/websocet", Get);
+  WS_PATH_ADD("/", Get);
   WS_PATH_LIST_END
-
-
- public:
+private:
   std::list<WebSocketConnectionPtr> _webconnections;
-  std::string JsonValueToString(const Json::Value&);
-
-
-
+   PrintMsgStation &_printmsgstation;
+  std::string JsonValueToString(const Json::Value &);
+  bool _is_working{false};
 };
 
 #endif // PRINTWEBSOCKET_H

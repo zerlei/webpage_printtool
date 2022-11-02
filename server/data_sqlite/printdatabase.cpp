@@ -110,7 +110,7 @@ PrintDatabase::printerConfigUpdate(const PrinterConfig &pc) {
   }
 }
 
-std::vector<PrinterConfig> &&PrintDatabase::printerConfigQueryById(int Id) {
+std::vector<PrinterConfig> PrintDatabase::printerConfigQueryById(int Id) {
   std::vector<PrinterConfig> pcs;
   try {
     QString querySql;
@@ -129,13 +129,13 @@ std::vector<PrinterConfig> &&PrintDatabase::printerConfigQueryById(int Id) {
         }
       }
     }
-    return std::move(pcs);
+    return pcs;
   } catch (...) {
-    return std::move(pcs);
+    return pcs;
   }
 }
 
-std::vector<PrinterConfig> &&
+std::vector<PrinterConfig> 
 PrintDatabase::printerConfigQueryByName(const QString &Name) {
   std::vector<PrinterConfig> pcs;
   try {
@@ -146,14 +146,14 @@ PrintDatabase::printerConfigQueryByName(const QString &Name) {
         pcs.push_back(PrinterConfig(_query.get()));
       }
     }
-    return std::move(pcs);
+    return pcs;
 
   } catch (...) {
-    return std::move(pcs);
+    return pcs;
   }
 }
 
-std::vector<PrintedPage> &&PrintDatabase::printedPageQuery(int page_size_,
+std::vector<PrintedPage> PrintDatabase::printedPageQuery(int page_size_,
                                                            int page_index_) {
   std::vector<PrintedPage> pps;
   try {
@@ -167,9 +167,9 @@ std::vector<PrintedPage> &&PrintDatabase::printedPageQuery(int page_size_,
         pps.push_back(PrintedPage(_query.get()));
       }
     }
-    return std::move(pps);
+    return pps;
   } catch (...) {
-    return std::move(pps);
+    return pps;
   }
 }
 
@@ -179,11 +179,11 @@ bool PrintDatabase::printedPageInsert(const PrintedPage &pp_) {
     auto query_sql =
         std::format(R"(
           insert into printed_page 
-          (PrintTime,FromIp,FromType,PageName,ConfigId,PrintMode,IsSuccess)
+          (PrintTime,FromIp,FromType,PageName,ConfigName,PrintMode,IsSuccess)
           values('{}','{}','{}','{}',{},'{}',{})
   )",
                     pp_.PrintTime, pp_.FromIp, pp_.FromType, pp_.PageName,
-                    pp_.ConfigId, pp_.PrintMode, pp_.IsSuccess);
+                    pp_.ConfigName, pp_.PrintMode, pp_.IsSuccess);
 
     if (_query->exec(QString::fromStdString(query_sql))) {
       return true;

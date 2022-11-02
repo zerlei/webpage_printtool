@@ -2,6 +2,7 @@
 #define BASE_H
 #include <QSqlQuery>
 #include <iostream>
+#include <json/reader.h>
 #include <json/value.h>
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
@@ -70,8 +71,7 @@ struct PrinterConfig {
 };
 
 struct PrintedPage {
-  PrintedPage(){
-  };
+  PrintedPage(){};
 
   PrintedPage(Json::Value &page_) {
 
@@ -83,7 +83,7 @@ struct PrintedPage {
       FromIp = page_["FromIp"].asString();
       FromType = page_["FromType"].asString();
       PageName = page_["PageName"].asString();
-      ConfigId = page_["ConfigId"].asInt();
+      ConfigName = page_["ConfigName"].asInt();
       PrintMode = page_["PrintMode"].asString();
       IsSuccess = page_["IsSuccess"].asBool();
       _is_correct = true;
@@ -99,7 +99,7 @@ struct PrintedPage {
       FromIp = query_->value(2).toString().toStdString();
       FromType = query_->value(3).toString().toStdString();
       PageName = query_->value(4).toString().toStdString();
-      ConfigId = query_->value(5).toInt();
+      ConfigName = query_->value(5).toInt();
       PrintMode = query_->value(6).toString().toStdString();
       IsSuccess = query_->value(7).toBool();
     } catch (...) {
@@ -111,7 +111,7 @@ struct PrintedPage {
     page["FromIp"] = FromIp;
     page["PageName"] = PageName;
     page["FromType"] = FromType;
-    page["ConfigId"] = ConfigId;
+    page["ConfigName"] = ConfigName;
     page["PrintMode"] = PrintMode;
     page["IsSuccess"] = IsSuccess;
     return page;
@@ -122,9 +122,8 @@ struct PrintedPage {
   std::string FromIp;
   std::string FromType;
   std::string PageName;
-  int ConfigId;
+  std::string ConfigName;
   std::string PrintMode;
   bool IsSuccess;
 };
-
 #endif // PrintDatabase_H

@@ -1,5 +1,6 @@
 #ifndef SLWEBSOC_H
 #define SLWEBSOC_H
+#include "../printer/printmsgstation.h"
 #include <QObject>
 #include <QTimer>
 #include <QWebSocket>
@@ -7,11 +8,11 @@
 #include <functional>
 #include <qtimer.h>
 
-class PrintMsgStation;
-class Websoc : public QObject {
+
+class ClientWebsoc : public QObject {
   Q_OBJECT
 public:
-  Websoc(PrintMsgStation *printmsgstation);
+  ClientWebsoc(PrintMsgStation &printmsgstation);
 
   void openUrl(const QUrl &url);
 
@@ -19,7 +20,10 @@ private:
   QTimer _timer;
   QWebSocket _webSoc;
   QUrl _url;
-  PrintMsgStation *_print_msg_station;
+  PrintMsgStation &_print_msg_station;
+
+private:
+std::string JsonValueToString(const Json::Value &);
 
 private slots:
   void slotTimerReConnect();

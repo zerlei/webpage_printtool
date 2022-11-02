@@ -13,7 +13,7 @@
             "environment": [
                 {
                     "name": "PATH",
-                    "value": "C:/Qt/6.4.0/msvc2019_64/bin"
+                    "value": "E:/dev/Qt/6.3.2/msvc2019_64/bin"
                 }
             ],
             "visualizerFile": "c:\\Users\\Zhao-\\AppData\\Roaming\\Code\\User\\workspaceStorage\\8b169e74466de42676004556d4a7d062\\tonka3000.qtvsctools\\qt.natvis.xml"

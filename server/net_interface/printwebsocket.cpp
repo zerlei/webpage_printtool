@@ -1,15 +1,29 @@
 #include "printwebsocket.h"
+#include <json/value.h>
 
-PrintWebSocket::PrintWebSocket() {}
+PrintWebSocket::PrintWebSocket(PrintMsgStation &print_msg_station)
+    : _printmsgstation(print_msg_station) {
+      auto f = [this](const Json::Value& v) {
+        auto msg = this->JsonValueToString(v);
+        for(auto & x : this->_webconnections) {
+          x->send(msg);
+        }
+      };
+      _printmsgstation._websoc_msg_push = f;
+    }
 
 void PrintWebSocket::handleNewMessage(
     const WebSocketConnectionPtr &webconnection, std::string &&str,
-    const WebSocketMessageType &) {}
+    const WebSocketMessageType &) {
+  auto f = [this, webconnection](const Json::Value &value) {
+    webconnection->send(this->JsonValueToString(value));
+  };
+  _printmsgstation.workWithStringAsync(str, f);
+}
 
 void PrintWebSocket::handleNewConnection(
     const HttpRequestPtr &, const WebSocketConnectionPtr &webconnection) {
   _webconnections.push_back(webconnection);
-  webconnection->send("Hello!");
 }
 
 void PrintWebSocket::handleConnectionClosed(

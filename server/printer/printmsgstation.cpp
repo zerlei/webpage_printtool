@@ -1,5 +1,6 @@
 #include "printmsgstation.h"
 #include "base.h"
+#include "net_interface/printwebsocket.h"
 #include <QGuiApplication>
 #include <QScreen>
 #include <chrono>
@@ -11,6 +12,143 @@
 #include <time.h>
 
 PrintMsgStation::PrintMsgStation() {}
+
+const Json::Value PrintMsgStation::workWithString(std::string &str_) {
+  try {
+    Json::Value jsob;
+    Json::Reader reader;
+    if (reader.parse(str_, jsob)) {
+
+      return workWithJson(jsob);
+
+    } else {
+      throw;
+    }
+
+  } catch (...) {
+    Json::Value resp;
+    resp["IsSuccess"] = false;
+    return resp;
+  }
+}
+const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
+
+  try {
+    auto msgtype = jsob["MsgType"];
+    if (!msgtype.isString()) {
+      throw;
+    }
+    auto msg_str = msgtype.asString();
+    Json::Value resp;
+    resp["Id"] = jsob["Id"];
+    resp["IsSuccess"] = true;
+    if (msg_str == "GetPrintInfo") {
+      resp["Result"] = getPrintInfo(true);
+
+    } else if (msg_str == "AddOnePrintConfig") {
+      resp["Result"] = addOnePrintConfig(jsob["Data"]);
+
+    } else if (msg_str == "DelOnePrintConfig") {
+      resp["Result"] = delOnePrintConfig(jsob["Data"].asInt());
+    } else if (msg_str == "UpdateOnePrintConfig") {
+      resp["Result"] = updateOnePrintConfig(jsob["Data"]);
+    } else if (msg_str == "GetPrintConfigs") {
+      resp["Result"] = getPrintConfigs();
+
+    } else if (msg_str == "ToPrint") {
+      throw;
+
+    } else if (msg_str == "GetPrintedPages") {
+      resp["Result"] = getPrintedPage(jsob["Data"]["Size"].asInt(),
+                                      jsob["Data"]["Page"].asInt());
+
+    } else if (msg_str == "GetWebsocketUrl") {
+      resp["Result"] = getWebsocketUrl();
+
+    } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
+      resp["Result"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
+    }
+    return resp;
+
+  } catch (...) {
+    Json::Value resp;
+    resp["IsSuccess"] = false;
+    return resp;
+  }
+}
+void PrintMsgStation::workWithStringAsync(
+    std::string str_, std::function<void(const Json::Value &)> callback) {
+
+  try {
+    Json::Value jsob;
+    Json::Reader reader;
+    if (reader.parse(str_, jsob)) {
+
+      workWithJsonAsync(jsob, callback);
+    } else {
+      throw;
+    }
+
+  } catch (...) {
+    Json::Value resp;
+    resp["IsSuccess"] = false;
+    callback(resp);
+  }
+}
+void PrintMsgStation::workWithJsonAsync(
+    Json::Value jsob, std::function<void(const Json::Value &)> callback) {
+  try {
+    auto msgtype = jsob["MsgType"];
+    if (!msgtype.isString()) {
+      throw;
+    }
+    auto msg_str = msgtype.asString();
+    Json::Value resp;
+    resp["Id"] = jsob["Id"];
+    resp["IsSuccess"] = true;
+    if (msg_str == "GetPrintInfo") {
+      resp["Result"] = getPrintInfo(true);
+      callback(resp);
+
+    } else if (msg_str == "AddOnePrintConfig") {
+      resp["Result"] = addOnePrintConfig(jsob["Data"]);
+      callback(resp);
+
+    } else if (msg_str == "DelOnePrintConfig") {
+      resp["Result"] = delOnePrintConfig(jsob["Data"].asInt());
+      callback(resp);
+
+    } else if (msg_str == "UpdateOnePrintConfig") {
+      resp["Result"] = updateOnePrintConfig(jsob["Data"]);
+      callback(resp);
+
+    } else if (msg_str == "GetPrintConfigs") {
+      resp["Result"] = getPrintConfigs();
+      callback(resp);
+
+    } else if (msg_str == "ToPrint") {
+      toPrint(jsob["Data"], jsob["Ipinfo"].asString(), callback);
+
+    } else if (msg_str == "GetPrintedPages") {
+      resp["Result"] = getPrintedPage(jsob["Data"]["Size"].asInt(),
+                                      jsob["Data"]["Page"].asInt());
+      callback(resp);
+
+    } else if (msg_str == "GetWebsocketUrl") {
+      resp["Result"] = getWebsocketUrl();
+      callback(resp);
+
+    } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
+      resp["Result"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
+      callback(resp);
+    }
+
+  } catch (...) {
+    Json::Value resp;
+    resp["IsSuccess"] = false;
+    callback(resp);
+  }
+}
 
 const Json::Value PrintMsgStation::getPrintInfo(bool isUpdate) {
   if (isUpdate) {
@@ -42,15 +180,14 @@ const Json::Value PrintMsgStation::getPrintInfo(bool isUpdate) {
   return PrinterInfoS;
 }
 
-const Json::Value
-PrintMsgStation::addOnePrintConfig(std::shared_ptr<Json::Value> json) {
+const Json::Value PrintMsgStation::addOnePrintConfig(Json::Value &json) {
   Json::Value respValue;
   if (json) {
-    auto [isSuccess, message] = _db.printerConfigInsert(*json);
-    respValue["isSuccess"] = isSuccess;
+    auto [IsSuccess, message] = _db.printerConfigInsert(json);
+    respValue["IsSuccess"] = IsSuccess;
     respValue["message"] = message;
   } else {
-    respValue["isSuccess"] = false;
+    respValue["IsSuccess"] = false;
     respValue["message"] = "需要可被解析的值!";
   }
   return respValue;
@@ -58,21 +195,20 @@ PrintMsgStation::addOnePrintConfig(std::shared_ptr<Json::Value> json) {
 
 const Json::Value PrintMsgStation::delOnePrintConfig(int Id) {
   Json::Value respValue;
-  auto [isSuccess, message] = _db.printerConfigDel(Id);
-  respValue["isSuccess"] = isSuccess;
+  auto [IsSuccess, message] = _db.printerConfigDel(Id);
+  respValue["IsSuccess"] = IsSuccess;
   respValue["message"] = message;
   return respValue;
 }
 
-const Json::Value
-PrintMsgStation::updateOnePrintConfig(std::shared_ptr<Json::Value> json) {
+const Json::Value PrintMsgStation::updateOnePrintConfig(Json::Value &json) {
   Json::Value respValue;
   if (json) {
-    auto [isSuccess, message] = _db.printerConfigUpdate(*json);
-    respValue["isSuccess"] = isSuccess;
+    auto [IsSuccess, message] = _db.printerConfigUpdate(json);
+    respValue["IsSuccess"] = IsSuccess;
     respValue["message"] = message;
   } else {
-    respValue["isSuccess"] = false;
+    respValue["IsSuccess"] = false;
     respValue["message"] = "需要可被解析的值!";
   }
   return respValue;
@@ -80,6 +216,7 @@ PrintMsgStation::updateOnePrintConfig(std::shared_ptr<Json::Value> json) {
 
 const Json::Value PrintMsgStation::getPrintConfigs() {
   Json::Value vs;
+  auto v = _db.printerConfigQueryById();
   for (PrinterConfig &x : _db.printerConfigQueryById()) {
     vs.append(x.getReflectionJson());
   }
@@ -87,15 +224,15 @@ const Json::Value PrintMsgStation::getPrintConfigs() {
 }
 
 void PrintMsgStation::toPrint(
-    std::shared_ptr<Json::Value> json, const std::string &ipinfo_,
+    Json::Value &json, const std::string &ipinfo_,
     std::function<void(const Json::Value &)> callback) {
-  auto list = std::make_shared<Json::Value>((*json)["WebPages"]);
+  auto list = std::make_shared<Json::Value>((json));
 
   auto size = list->size();
   if (size == 0) {
     Json::Value v;
     Json::Value errValue;
-    errValue["isSuccess"] = false;
+    errValue["IsSuccess"] = false;
     errValue["message"] = "错误的数据格式";
     v.append(errValue);
     callback(v);
@@ -105,19 +242,19 @@ void PrintMsgStation::toPrint(
   *i = 0;
   auto respValue = std::make_shared<Json::Value>();
   auto f = [callback, size, i, respValue, list, ipinfo_,
-            this](bool isSuccess, const QString &message) {
+            this](bool IsSuccess, const QString &message) {
     Json::Value subValue;
-    subValue["isSuccess"] = isSuccess;
+    subValue["IsSuccess"] = IsSuccess;
     subValue["message"] = message.toStdString();
     respValue->append(subValue);
     PrintedPage page;
-    page.IsSuccess = isSuccess;
+    page.IsSuccess = IsSuccess;
     page.PrintTime =
         std::format("{0:%F} {0:%T}", std::chrono::system_clock::now());
     page.FromIp = ipinfo_;
     page.FromType = "HttpServer";
     page.PageName = (*list)[*i]["Url"].asString();
-    page.ConfigId = (*list)[*i]["Id"].asInt();
+    page.ConfigName = (*list)[*i]["Id"].asInt();
     page.PrintMode = (*list)[*i]["PrintMode"].asString();
     _db.printedPageInsert(page);
 
@@ -192,16 +329,19 @@ const Json::Value PrintMsgStation::getScreenInfo() {
 std::string PrintMsgStation::getWebsocketUrl() { return _db.getWebsocketUrl(); }
 bool PrintMsgStation::insertOrUpdateWebsocketUrl(
     const std::string &websoc_url_) {
+
+  if (_set_websoc_url) {
+    _set_websoc_url(websoc_url_);
+  }
   return _db.insertOrUpdateWebsocketUrl(websoc_url_);
 }
 
 void PrintMsgStation::setClientWebSockState(bool is_) {
-  _client_websoc_connected = is_;
-  Json::Value v;
-  v["MsgTyle"] = "WebSoc";
-  v["WebsocConnected"] = is_;
-  auto msg = _print_websoc->JsonValueToString(v);
-  for (auto &_ : _print_websoc->_webconnections) {
-    _->send(msg);
+
+  if (_websoc_msg_push) {
+    Json::Value v;
+    v["Id"] = "😀";
+    v["WebsocConnected"] = is_;
+    _websoc_msg_push(v);
   }
 }
