@@ -6,6 +6,7 @@
 #include <functional>
 #include <json/value.h>
 #include <memory>
+#include <string>
 class PrintMsgStation : QObject {
   Q_OBJECT
 public:
@@ -14,7 +15,7 @@ public:
 public:
   const Json::Value workWithString(std::string& str_);
   const Json::Value workWithJson(Json::Value& _v);
-  void workWithStringAsync(std::string str_,std::function<void(const Json::Value &)>);
+  void workWithStringAsync(std::string str_,std::string& ipinfo,std::string & from_type, std::function<void(const Json::Value &)>);
   void workWithJsonAsync(Json::Value _v,std::function<void(const Json::Value &)>);
 
   const Json::Value getPrintInfo(bool isUpdate);
@@ -23,7 +24,7 @@ public:
   const Json::Value updateOnePrintConfig(Json::Value& json);
   const Json::Value getPrintConfigs();
 
-  void toPrint(Json::Value& json, const std::string &,
+  void toPrint(Json::Value& json, const std::string &,const std::string&,
                std::function<void(const Json::Value &)>);
 
   const Json::Value getPrintedPage(int size, int page);

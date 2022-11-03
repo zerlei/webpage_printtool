@@ -1,6 +1,5 @@
 #include "printmsgstation.h"
 #include "base.h"
-#include "net_interface/printwebsocket.h"
 #include <QGuiApplication>
 #include <QScreen>
 #include <chrono>
@@ -9,6 +8,7 @@
 #include <iomanip>
 #include <json/value.h>
 #include <memory>
+#include <string>
 #include <time.h>
 
 PrintMsgStation::PrintMsgStation() {}
@@ -77,12 +77,15 @@ const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
   }
 }
 void PrintMsgStation::workWithStringAsync(
-    std::string str_, std::function<void(const Json::Value &)> callback) {
+    std::string str_, std::string &ipinfo, std::string &from_type,
+    std::function<void(const Json::Value &)> callback) {
 
   try {
     Json::Value jsob;
     Json::Reader reader;
     if (reader.parse(str_, jsob)) {
+      jsob["IpInfo"] = ipinfo;
+      jsob["FromType"] = from_type;
 
       workWithJsonAsync(jsob, callback);
     } else {
@@ -127,7 +130,8 @@ void PrintMsgStation::workWithJsonAsync(
       callback(resp);
 
     } else if (msg_str == "ToPrint") {
-      toPrint(jsob["Data"], jsob["Ipinfo"].asString(), callback);
+      toPrint(jsob["Data"], jsob["IpInfo"].asString(),
+              jsob["FromType"].asString(), callback);
 
     } else if (msg_str == "GetPrintedPages") {
       resp["Result"] = getPrintedPage(jsob["Data"]["Size"].asInt(),
@@ -225,6 +229,7 @@ const Json::Value PrintMsgStation::getPrintConfigs() {
 
 void PrintMsgStation::toPrint(
     Json::Value &json, const std::string &ipinfo_,
+    const std::string &from_type_,
     std::function<void(const Json::Value &)> callback) {
   auto list = std::make_shared<Json::Value>((json));
 
@@ -241,7 +246,7 @@ void PrintMsgStation::toPrint(
   auto i = std::make_shared<int>();
   *i = 0;
   auto respValue = std::make_shared<Json::Value>();
-  auto f = [callback, size, i, respValue, list, ipinfo_,
+  auto f = [callback, size, i, respValue, list, ipinfo_, from_type_,
             this](bool IsSuccess, const QString &message) {
     Json::Value subValue;
     subValue["IsSuccess"] = IsSuccess;
@@ -252,9 +257,9 @@ void PrintMsgStation::toPrint(
     page.PrintTime =
         std::format("{0:%F} {0:%T}", std::chrono::system_clock::now());
     page.FromIp = ipinfo_;
-    page.FromType = "HttpServer";
+    page.FromType = from_type_;
     page.PageName = (*list)[*i]["Url"].asString();
-    page.ConfigName = (*list)[*i]["Id"].asInt();
+    page.ConfigName = (*list)[*i]["Name"].asString();
     page.PrintMode = (*list)[*i]["PrintMode"].asString();
     _db.printedPageInsert(page);
 
@@ -266,41 +271,47 @@ void PrintMsgStation::toPrint(
 
   for (auto &x : *list) {
 
-    const auto url = QString::fromStdString(x["Url"].asString());
-    auto mode = x["PrintMode"].asString() == "LoadAchieve"
-                    ? PrintModel::LoadAchieve
-                    : PrintModel::JsPrintRequest;
-    auto Id = x["Id"].asInt();
+    try {
+      const auto url = QString::fromStdString(x["Url"].asString());
+      auto mode = x["PrintMode"].asString() == "LoadAchieve"
+                      ? PrintModel::LoadAchieve
+                      : PrintModel::JsPrintRequest;
+      auto Name = x["Name"].asString();
 
-    auto printer_config = _db.printerConfigQueryById(Id);
+      auto printer_config =
+          _db.printerConfigQueryByName(QString::fromStdString(Name));
 
-    if (printer_config.empty()) {
-      f(false, "找不到对应的打印机配置~");
-    } else {
-      auto PrinterInfoName =
-          QString::fromStdString(printer_config[0].PrinterName);
-
-      auto PageName = QString::fromStdString(printer_config[0].PaperName);
-
-      auto TopMargin = printer_config[0].TopMargin;
-      auto BottomMargin = printer_config[0].BottomMargin;
-      auto LeftMargin = printer_config[0].LeftMargin;
-      auto RightMargin = printer_config[0].RightMargin;
-
-      QMarginsF margins(LeftMargin, TopMargin, RightMargin, BottomMargin);
-
-      QPageLayout::Orientation Orientation_;
-
-      auto Orientation = printer_config[0].Orientation;
-      if (Orientation == "横向") {
-        Orientation_ = QPageLayout::Portrait;
+      if (printer_config.empty()) {
+        f(false, "找不到对应的打印机配置~");
       } else {
-        Orientation_ = QPageLayout::Landscape;
+        auto PrinterInfoName =
+            QString::fromStdString(printer_config[0].PrinterName);
+
+        auto PageName = QString::fromStdString(printer_config[0].PaperName);
+
+        auto TopMargin = printer_config[0].TopMargin;
+        auto BottomMargin = printer_config[0].BottomMargin;
+        auto LeftMargin = printer_config[0].LeftMargin;
+        auto RightMargin = printer_config[0].RightMargin;
+
+        QMarginsF margins(LeftMargin, TopMargin, RightMargin, BottomMargin);
+
+        QPageLayout::Orientation Orientation_;
+
+        auto Orientation = printer_config[0].Orientation;
+        if (Orientation == "横向") {
+          Orientation_ = QPageLayout::Portrait;
+        } else {
+          Orientation_ = QPageLayout::Landscape;
+        }
+
+        _print.addPrintWebPageToQueue(QUrl(url), PrinterInfoName, mode,
+                                      PageName, margins, Orientation_, f);
+        emit _print.signalGuiThreadToWork();
       }
 
-      _print.addPrintWebPageToQueue(QUrl(url), PrinterInfoName, mode, PageName,
-                                    margins, Orientation_, f);
-      emit _print.signalGuiThreadToWork();
+    } catch (...) {
+      f(false, "不合格的数据格式！");
     }
   }
 }

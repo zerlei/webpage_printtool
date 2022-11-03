@@ -18,7 +18,10 @@ void PrintWebSocket::handleNewMessage(
   auto f = [this, webconnection](const Json::Value &value) {
     webconnection->send(this->JsonValueToString(value));
   };
-  _printmsgstation.workWithStringAsync(str, f);
+  std::string ip = webconnection->localAddr().toIp().c_str();
+
+  std::string fromtype = "ServerWebsocket";
+  _printmsgstation.workWithStringAsync(str,ip,fromtype, f);
 }
 
 void PrintWebSocket::handleNewConnection(

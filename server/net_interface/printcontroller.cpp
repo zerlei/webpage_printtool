@@ -26,7 +26,9 @@ void PrintController::Print(
     callback(this->ConfigResponse(value));
   };
   auto str = std::string(req->body());
-  _printmsgstation.workWithStringAsync(str, f);
+  std::string ip = req->getLocalAddr().toIp();
+  std::string fromtype = "ServerHttp";
+  _printmsgstation.workWithStringAsync(str, ip, fromtype, f);
 }
 HttpResponsePtr PrintController::ConfigResponse(const Json::Value &value) {
   auto resp = HttpResponse::newHttpJsonResponse(value);

@@ -6,6 +6,7 @@
 #include <json/writer.h>
 #include <memory>
 #include <qtimer.h>
+#include <string>
 
 ClientWebsoc::ClientWebsoc(PrintMsgStation &printmsgstation)
     : _print_msg_station(printmsgstation) {
@@ -37,7 +38,9 @@ void ClientWebsoc::slotReceiveMsg(const QString &message) {
     this->_webSoc.sendTextMessage(
         QString::fromStdString(this->JsonValueToString(v)));
   };
-  _print_msg_station.workWithStringAsync(message.toStdString(), f);
+  auto ip = _url.host().toStdString();
+  std::string fromtype = "ClientWebsocket";
+  _print_msg_station.workWithStringAsync(message.toStdString(), ip,fromtype,f);
 }
 
 void ClientWebsoc::slotOnConnect() {
