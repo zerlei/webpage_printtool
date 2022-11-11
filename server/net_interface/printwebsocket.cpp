@@ -1,5 +1,6 @@
 #include "printwebsocket.h"
 #include <json/value.h>
+#include <json/writer.h>
 
 PrintWebSocket::PrintWebSocket(PrintMsgStation &print_msg_station)
     : _printmsgstation(print_msg_station) {
@@ -15,6 +16,11 @@ PrintWebSocket::PrintWebSocket(PrintMsgStation &print_msg_station)
 void PrintWebSocket::handleNewMessage(
     const WebSocketConnectionPtr &webconnection, std::string &&str,
     const WebSocketMessageType &) {
+
+
+  if(str.empty()) {
+    return;
+  }
   auto f = [this, webconnection](const Json::Value &value) {
     webconnection->send(this->JsonValueToString(value));
   };
@@ -35,10 +41,6 @@ void PrintWebSocket::handleConnectionClosed(
 }
 
 std::string PrintWebSocket::JsonValueToString(const Json::Value &value) {
-  Json::StreamWriterBuilder writer_builder;
-  std::unique_ptr<Json::StreamWriter> json_write(
-      writer_builder.newStreamWriter());
-  std::ostringstream stream;
-  json_write->write(value, &stream);
-  return stream.str();
+ return Json::FastWriter().write(value);
+
 }

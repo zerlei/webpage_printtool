@@ -64,10 +64,5 @@ void ClientWebsoc::slotErr(QAbstractSocket::SocketError error) {
 
 void ClientWebsoc::slotSSLErr(const QList<QSslError> &errors) {}
 std::string ClientWebsoc::JsonValueToString(const Json::Value &value) {
-  Json::StreamWriterBuilder writer_builder;
-  std::unique_ptr<Json::StreamWriter> json_write(
-      writer_builder.newStreamWriter());
-  std::ostringstream stream;
-  json_write->write(value, &stream);
-  return stream.str();
+  return Json::FastWriter().write(value);
 }

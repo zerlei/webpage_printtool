@@ -89,7 +89,7 @@ void PrintMsgStation::workWithStringAsync(
 
       workWithJsonAsync(jsob, callback);
     } else {
-      throw;
+      throw 1;
     }
 
   } catch (...) {
@@ -107,7 +107,7 @@ void PrintMsgStation::workWithJsonAsync(
     }
     auto msg_str = msgtype.asString();
     Json::Value resp;
-    resp["Id"] = jsob["Id"];
+    resp["Id"] = jsob["Id"].asString();
     resp["IsSuccess"] = true;
     if (msg_str == "GetPrintInfo") {
       resp["Result"] = getPrintInfo(true);

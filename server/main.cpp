@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
   std::string docoment_root = "./";
   if (argc <= 1) {
-    return 0;
+    // return 0;
   } else {
     docoment_root = argv[1];
   }
