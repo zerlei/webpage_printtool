@@ -15,6 +15,7 @@ import {
 } from 'naive-ui'
 
 import { ref, watch } from 'vue'
+import ServerNet from "../websocket"
 
 const emit = defineEmits(['reload'])
 const showModal = ref(false)
@@ -23,31 +24,15 @@ const acceptinfo = ref("下一步")
 const currentStatus = ref('process')
 const beforedisabled = ref(true)
 const Printercolumns = ref([
-    {
-        type: 'selection',
-        multiple: false,
-    },
-    {
-        title: "打印机名称",
-        key: "PrinterName"
-    }
+    { type: 'selection', multiple: false, },
+    { title: "打印机名称", key: "PrinterName" }
 ])
 const PrinterData = ref([])
 const PrinterChecked = ref([])
 const Papercolumns = ref([
-    {
-        type: 'selection',
-        multiple: false,
-    },
-    {
-        title: "纸张名称",
-        key: "PaperName"
-    },
-    {
-        title: "纸张尺寸",
-        key: "PaperSize"
-    }
-
+    { type: 'selection', multiple: false, },
+    { title: "纸张名称", key: "PaperName" },
+    { title: "纸张尺寸", key: "PaperSize" }
 ])
 const PaperData = ref([])
 const PaperChecked = ref([])
@@ -93,18 +78,77 @@ watch(Name, (n, o) => {
     } else {
         NameInputStatus.value = 'success'
     }
-})
+})``
 
+async function addOnePrintConfig(ob) {
+
+    let res = await ServerNet.send({ MsgType: "AddOnePrintConfig", Data: ob })
+    if (res.IsSuccess && res.Result.IsSuccess) {
+        dialog.success({
+            title: '成功',
+            content: '添加成功！',
+            positiveText: '好的',
+            onPositiveClick: () => {
+            }
+        })
+        showModal.value = false
+        currentStep.value = 1
+        acceptinfo.value = "下一步"
+        beforedisabled.value = true
+        emit('reload')
+    } else {
+        dialog.error({
+            title: '失败',
+            content: res.Result.Message,
+            positiveText: '好的',
+            onPositiveClick: () => {
+            }
+        })
+    }
+
+
+}
+async function updateOnePrintConfig(ob) {
+    // //TODO
+    // fetch('http://127.0.0.1:8847/PrintController/updateoneprintconfig', {
+    //     method: "POST",
+    //     body: JSON.stringify(ob)
+    // })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.isSuccess) {
+    //             dialog.success({
+    //                 title: '成功',
+    //                 content: '修改成功！',
+    //                 positiveText: '好的',
+    //                 onPositiveClick: () => {
+    //                 }
+    //             })
+    //             showModal.value = false
+    //             currentStep.value = 1
+    //             acceptinfo.value = "下一步"
+    //             beforedisabled.value = true
+    //             emit('reload')
+
+    //         } else {
+    //             dialog.error({
+    //                 title: '失败',
+    //                 content: data.message,
+    //                 positiveText: '好的',
+    //                 onPositiveClick: () => {
+    //                 }
+    //             })
+    //         }
+    //     });
+}
 //#region 显示效果
 function acceptNext() {
     if (currentStep.value == 1) {
 
         PrinterInfoData.forEach(e => {
             if (e.PrinterName == PrinterChecked.value[0]) {
-
                 PaperData.value = e.Papers
-
-                if( PaperData.value.length>0 && PaperChecked.value.length == 0) {
+                if (PaperData.value.length > 0 && PaperChecked.value.length == 0) {
                     PaperChecked.value = [PaperData.value[0].Id]
                 }
             }
@@ -139,76 +183,13 @@ function acceptNext() {
             }
         }).PaperName
         if (type_ == 'add') {
-            fetch('http://127.0.0.1:8847/PrintController/addoneprintconfig', {
-                method: "POST",
-                body: JSON.stringify(ob)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.isSuccess) {
-                        dialog.success({
-                            title: '成功',
-                            content: '添加成功！',
-                            positiveText: '好的',
-                            onPositiveClick: () => {
-                            }
-                        })
-                        showModal.value = false
-                        currentStep.value = 1
-                        acceptinfo.value = "下一步"
-                        beforedisabled.value = true
-                        emit('reload')
-
-                    } else {
-                        dialog.error({
-                            title: '失败',
-                            content: data.message,
-                            positiveText: '好的',
-                            onPositiveClick: () => {
-                            }
-                        })
-                    }
-                });
+            addOnePrintConfig(ob)
 
         } else {
             ob.Id = configId
-            fetch('http://127.0.0.1:8847/PrintController/updateoneprintconfig', {
-                method: "POST",
-                body: JSON.stringify(ob)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.isSuccess) {
-                        dialog.success({
-                            title: '成功',
-                            content: '修改成功！',
-                            positiveText: '好的',
-                            onPositiveClick: () => {
-                            }
-                        })
-
-                        showModal.value = false
-                        currentStep.value = 1
-                        acceptinfo.value = "下一步"
-                        beforedisabled.value = true
-                        emit('reload')
-
-                    } else {
-                        dialog.error({
-                            title: '失败',
-                            content: data.message,
-                            positiveText: '好的',
-                            onPositiveClick: () => {
-                            }
-                        })
-                    }
-                });
-
+            updateOnePrintConfig(ob)
         }
-
     }
-
-
 }
 function acceptBefore() {
 
@@ -245,10 +226,6 @@ function showOrHide(from, row) {
         PrinterInfoData.forEach(e => {
             if (e.PrinterName == row.PrinterName) {
                 PaperData.value = e.Papers
-
-                // if(PaperData.value.length>0) {
-                //     PaperChecked.value = [PaperData[0].Id]
-                // }
                 e.Papers.forEach(e2 => {
                     if (e2.PaperName == row.PaperName) {
                         PaperChecked.value = [e2.Id]

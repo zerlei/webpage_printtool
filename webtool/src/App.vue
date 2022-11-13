@@ -1,16 +1,11 @@
 <script setup>
 
-import { defineExpose, defineEmits, ref, h } from 'vue'
+import { ref, h } from 'vue'
 import { darkTheme, NMenu, NScrollbar, NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
 import { RouterLink } from 'vue-router'
 
-// import {
-//   BookOutline as BookIcon,
-//   PersonOutline as PersonIcon,
-//   WineOutline as WineIcon
-// } from "@vicons/ionicons5";
 
-const currentSelect = ref("config")
+const currentSelect = ref("setting")
 const menuOptions = ref([
   {
     label: () =>
@@ -18,7 +13,7 @@ const menuOptions = ref([
         RouterLink,
         {
           to: {
-            name: "config",
+            name: "setting",
             params: {
               lang: 'zh-CN'
             }
@@ -26,7 +21,7 @@ const menuOptions = ref([
         }
         , { default: () => '配置' }
       ),
-    key: "config",
+    key: "setting",
   },
   {
     label: () =>
@@ -121,6 +116,7 @@ const menuOptions = ref([
   font-size: 1px;
   max-width: 150px;
 }
+
 .markdown-body code {
   color: #ed5736;
 }
@@ -137,38 +133,42 @@ const menuOptions = ref([
   padding-left: 1%;
 }
 
-.markdown-body h1 {
+h1 {
   background-color: brown;
   border-radius: 5px;
   padding-left: 2%;
   padding-top: 5px;
   padding-bottom: 5px;
+  color: azure;
 }
 
-.markdown-body h2 {
+h2 {
   background-color: #405f86;
   border-radius: 5px;
   padding-left: 2%;
   padding-top: 5px;
   padding-bottom: 5px;
+  color: azure;
 }
 
-.markdown-body h3 {
+h3 {
   background-color: #8a703c;
   border-radius: 5px;
   padding-left: 2%;
   padding-top: 5px;
   padding-bottom: 5px;
   margin-left: 1%;
+  color: azure;
 }
 
-.markdown-body h4 {
+h4 {
   background-color: #647c68;
   border-radius: 5px;
   padding-left: 2%;
   padding-top: 5px;
   padding-bottom: 5px;
   margin-left: 1.5%;
+  color: azure;
 
 }
 

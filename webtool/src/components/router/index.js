@@ -5,15 +5,15 @@ import { createRouter, createWebHashHistory,createWebHistory} from 'vue-router'
 const routes = [
     {
         path:'/',
-        name:'config',
+        name:'setting',
         title:'配置',
-        component:()=>import('../config.vue')
+        component:()=>import('../printsettings/settings.vue')
     },
     {
         path:'/about',
         name:'about',
         title:'关于',
-        component:()=>import('../about.vue')
+        component:()=>import('../about/about.vue')
     }
 ]
 
