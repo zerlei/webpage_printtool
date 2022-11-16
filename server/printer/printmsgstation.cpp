@@ -22,7 +22,7 @@ const Json::Value PrintMsgStation::workWithString(std::string &str_) {
       return workWithJson(jsob);
 
     } else {
-      throw;
+      throw 1;
     }
 
   } catch (...) {
@@ -36,7 +36,7 @@ const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
   try {
     auto msgtype = jsob["MsgType"];
     if (!msgtype.isString()) {
-      throw;
+      throw 1;
     }
     auto msg_str = msgtype.asString();
     Json::Value resp;
@@ -56,7 +56,7 @@ const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
       resp["Result"] = getPrintConfigs();
 
     } else if (msg_str == "ToPrint") {
-      throw;
+      throw 1;
 
     } else if (msg_str == "GetPrintedPages") {
       resp["Result"] = getPrintedPage(jsob["Data"]["Size"].asInt(),
