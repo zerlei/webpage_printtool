@@ -8,7 +8,7 @@
 
 <script setup >
 //you dont't love me 
-import { defineEmits, ref, onMounted } from 'vue'
+import {ref, onMounted } from 'vue'
 import { NScrollbar } from 'naive-ui'
 
 const scrollBarAnchor = ref(null)

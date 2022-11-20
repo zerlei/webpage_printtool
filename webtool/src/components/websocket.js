@@ -15,12 +15,9 @@ class Websoc {
             let now = Date.now()
             for (let i = 0; i < this.#sender.length;) {
                 if (now - this.#sender[i].time > 120000) {
-
                     let resp = {
                         IsSuccess: false,
-                        Result: {
-                            Message: "超时！"
-                        }
+                        Message: "超时！"
                     }
                     this.#sender[i].resolve(resp)
                     this.#sender.splice(i, 1)
@@ -30,7 +27,7 @@ class Websoc {
             }
         }, 120000)
 
-        this.#websocket = new WebSocket('ws://127.0.0.1:8847')
+        this.#websocket = new WebSocket('ws://212.129.223.183:8847')
         this.#websocket.onopen = event => {
             console.warn("websocket connected!")
             clearInterval(this.#reopentimer)
@@ -44,13 +41,13 @@ class Websoc {
         }
         this.#websocket.onclose = event => {
             this.#reopentimer = setInterval(() => {
-                this.#websocket = new WebSocket('ws://127.0.0.1:8847')
+                this.#websocket = new WebSocket('ws://212.129.223.183:8847')
                 console.warn('reopen websocket!')
             }, 30000)
         }
         this.#websocket.onerror = e => {
             if (this.#websocket.readyState) {
-                //blab;a
+                //bla bla
             }
         }
     }
@@ -74,6 +71,8 @@ class Websoc {
         if (!msg.Id) {
             msg.Id = `${Date.now()}`
         }
+
+        console.log(msg)
         if (this.#websocket.readyState == 1) {
             this.#websocket.send(JSON.stringify(msg))
         } else {
@@ -93,6 +92,8 @@ class Websoc {
         try {
 
             let ob = JSON.parse(data)
+
+            console.log(ob)
             //msg
             for (let i = 0; i < this.#sender.length;) {
                 if (this.#sender[i].id == ob.Id) {

@@ -16,7 +16,7 @@ import {
 
 const options = ref([
     { label: "hi", value: "hi" },
-    { label: "hello", value: "hello" },
+    { label: "hello", value: "hello" }
 ])
 const _printRequest = ref({
     PageUrl: "https://www.bing.com",
@@ -47,11 +47,21 @@ const rules = ref({
 })
 const formRef = ref(null)
 function toPrint(e) {
-    console.log("ss")
     e.preventDefault();
-    formRef.value?.validate((e) => {
-        console.log(11)
-    })
+    try {
+        formRef.value?.validate((e) => {
+
+            try {
+
+            console.log(e)
+            }
+            catch(x) {
+
+            }
+        })
+    }
+    catch (e) {
+    }
 }
 const railStyle = ({
     focused,
@@ -100,6 +110,4 @@ const railStyle = ({
             </n-button>
         </n-form-item>
     </n-form>
-
-
 </template>

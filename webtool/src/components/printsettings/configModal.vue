@@ -243,6 +243,8 @@ function showOrHide(from, row) {
 
 function setPrintInfoData(data) {
     PrinterInfoData = data
+    if (!PrinterInfoData)
+        return
     PrinterInfoData.forEach(e => {
         // 打印机的纸张存在同名同Id的
         for (var i = 0; i < e.Papers.length; ++i) {

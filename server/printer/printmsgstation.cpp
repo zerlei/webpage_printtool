@@ -114,15 +114,21 @@ void PrintMsgStation::workWithJsonAsync(
       callback(resp);
 
     } else if (msg_str == "AddOnePrintConfig") {
-      resp["Result"] = addOnePrintConfig(jsob["Data"]);
+      auto result = addOnePrintConfig(jsob["Data"]);
+      resp["IsSuccess"] = result["IsSuccess"];
+      resp["Message"] = result["Message"];
       callback(resp);
 
     } else if (msg_str == "DelOnePrintConfig") {
-      resp["Result"] = delOnePrintConfig(jsob["Data"].asInt());
+      auto result = delOnePrintConfig(jsob["Data"].asInt());
+      resp["IsSuccess"] = result["IsSuccess"];
+      resp["Message"] = result["Message"];
       callback(resp);
 
     } else if (msg_str == "UpdateOnePrintConfig") {
-      resp["Result"] = updateOnePrintConfig(jsob["Data"]);
+      auto result = updateOnePrintConfig(jsob["Data"]);
+      resp["IsSuccess"] = result["IsSuccess"];
+      resp["Message"] = result["Message"];
       callback(resp);
 
     } else if (msg_str == "GetPrintConfigs") {
@@ -151,7 +157,7 @@ void PrintMsgStation::workWithJsonAsync(
     Json::Value resp;
     resp["IsSuccess"] = false;
     resp["Id"] = jsob["Id"].asString();
-    resp["Result"]["Message"] ="Unknow ERR!";
+    resp["Message"] = "数据格式是否错误？";
     callback(resp);
   }
 }
@@ -189,33 +195,33 @@ const Json::Value PrintMsgStation::getPrintInfo(bool isUpdate) {
 const Json::Value PrintMsgStation::addOnePrintConfig(Json::Value &json) {
   Json::Value respValue;
   if (json) {
-    auto [IsSuccess, message] = _db.printerConfigInsert(json);
+    auto [IsSuccess, Message] = _db.printerConfigInsert(json);
     respValue["IsSuccess"] = IsSuccess;
-    respValue["message"] = message;
+    respValue["Message"] = Message;
   } else {
     respValue["IsSuccess"] = false;
-    respValue["message"] = "需要可被解析的值!";
+    respValue["Message"] = "需要可被解析的值!";
   }
   return respValue;
 }
 
 const Json::Value PrintMsgStation::delOnePrintConfig(int Id) {
   Json::Value respValue;
-  auto [IsSuccess, message] = _db.printerConfigDel(Id);
+  auto [IsSuccess, Message] = _db.printerConfigDel(Id);
   respValue["IsSuccess"] = IsSuccess;
-  respValue["message"] = message;
+  respValue["Message"] = Message;
   return respValue;
 }
 
 const Json::Value PrintMsgStation::updateOnePrintConfig(Json::Value &json) {
   Json::Value respValue;
   if (json) {
-    auto [IsSuccess, message] = _db.printerConfigUpdate(json);
+    auto [IsSuccess, Message] = _db.printerConfigUpdate(json);
     respValue["IsSuccess"] = IsSuccess;
-    respValue["message"] = message;
+    respValue["Message"] = Message;
   } else {
     respValue["IsSuccess"] = false;
-    respValue["message"] = "需要可被解析的值!";
+    respValue["Message"] = "需要可被解析的值!";
   }
   return respValue;
 }
@@ -240,7 +246,7 @@ void PrintMsgStation::toPrint(
     Json::Value v;
     Json::Value errValue;
     errValue["IsSuccess"] = false;
-    errValue["message"] = "错误的数据格式";
+    errValue["Message"] = "错误的数据格式";
     v.append(errValue);
     callback(v);
     return;
@@ -249,10 +255,10 @@ void PrintMsgStation::toPrint(
   *i = 0;
   auto respValue = std::make_shared<Json::Value>();
   auto f = [callback, size, i, respValue, list, ipinfo_, from_type_,
-            this](bool IsSuccess, const QString &message) {
+            this](bool IsSuccess, const QString &Message) {
     Json::Value subValue;
     subValue["IsSuccess"] = IsSuccess;
-    subValue["message"] = message.toStdString();
+    subValue["Message"] = Message.toStdString();
     respValue->append(subValue);
     PrintedPage page;
     page.IsSuccess = IsSuccess;
