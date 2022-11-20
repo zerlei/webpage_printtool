@@ -4,7 +4,10 @@
 #include <algorithm>
 #include <cmath>
 #include <format>
+#include <iostream>
+#include <qdebug.h>
 #include <vector>
+#include <QDebug>
 
 PrintDatabase::PrintDatabase() {
   _db = QSqlDatabase::addDatabase("QSQLITE");
@@ -180,14 +183,21 @@ bool PrintDatabase::printedPageInsert(const PrintedPage &pp_) {
         std::format(R"(
           insert into printed_page 
           (PrintTime,FromIp,FromType,PageName,ConfigName,PrintMode,IsSuccess)
-          values('{}','{}','{}','{}',{},'{}',{})
+          values('{}','{}','{}','{}','{}','{}',{})
   )",
                     pp_.PrintTime, pp_.FromIp, pp_.FromType, pp_.PageName,
-                    pp_.ConfigName, pp_.PrintMode, pp_.IsSuccess);
+                    pp_.ConfigName, pp_.PrintMode, pp_.IsSuccess?1:0);
 
-    if (_query->exec(QString::fromStdString(query_sql))) {
+
+
+
+    QString _q = QString::fromStdString(query_sql);
+    qDebug()<<_q;
+    if (_query->exec(_q)) {
       return true;
     }
+    auto err = _query->lastQuery();
+    qDebug()<<err;
     return false;
   } catch (...) {
     return false;

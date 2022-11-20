@@ -66,7 +66,7 @@ const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
       resp["Result"] = getWebsocketUrl();
 
     } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
-      resp["Result"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
+      resp["IsSuccess"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
     }
     return resp;
 
@@ -136,8 +136,12 @@ void PrintMsgStation::workWithJsonAsync(
       callback(resp);
 
     } else if (msg_str == "ToPrint") {
+      auto f = [resp,callback](const Json::Value& j)mutable {
+       resp["Result"] = j;
+        callback(resp);
+      };
       toPrint(jsob["Data"], jsob["IpInfo"].asString(),
-              jsob["FromType"].asString(), callback);
+              jsob["FromType"].asString(), f);
 
     } else if (msg_str == "GetPrintedPages") {
       resp["Result"] = getPrintedPage(jsob["Data"]["Size"].asInt(),
@@ -149,7 +153,7 @@ void PrintMsgStation::workWithJsonAsync(
       callback(resp);
 
     } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
-      resp["Result"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
+      resp["IsSuccess"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
       callback(resp);
     }
 
@@ -266,8 +270,8 @@ void PrintMsgStation::toPrint(
         std::format("{0:%F} {0:%T}", std::chrono::system_clock::now());
     page.FromIp = ipinfo_;
     page.FromType = from_type_;
-    page.PageName = (*list)[*i]["Url"].asString();
-    page.ConfigName = (*list)[*i]["Name"].asString();
+    page.PageName = (*list)[*i]["PageUrl"].asString();
+    page.ConfigName = (*list)[*i]["ConfigName"].asString();
     page.PrintMode = (*list)[*i]["PrintMode"].asString();
     _db.printedPageInsert(page);
 
@@ -280,11 +284,11 @@ void PrintMsgStation::toPrint(
   for (auto &x : *list) {
 
     try {
-      const auto url = QString::fromStdString(x["Url"].asString());
+      const auto url = QString::fromStdString(x["PageUrl"].asString());
       auto mode = x["PrintMode"].asString() == "LoadAchieve"
                       ? PrintModel::LoadAchieve
                       : PrintModel::JsPrintRequest;
-      auto Name = x["Name"].asString();
+      auto Name = x["ConfigName"].asString();
 
       auto printer_config =
           _db.printerConfigQueryByName(QString::fromStdString(Name));

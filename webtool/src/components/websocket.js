@@ -1,4 +1,3 @@
-
 class Websoc {
     #listener
     #sender
@@ -27,7 +26,7 @@ class Websoc {
             }
         }, 120000)
 
-        this.#websocket = new WebSocket('ws://212.129.223.183:8847')
+        this.#websocket = new WebSocket('ws://127.0.0.1:8847')
         this.#websocket.onopen = event => {
             console.warn("websocket connected!")
             clearInterval(this.#reopentimer)
@@ -41,7 +40,7 @@ class Websoc {
         }
         this.#websocket.onclose = event => {
             this.#reopentimer = setInterval(() => {
-                this.#websocket = new WebSocket('ws://212.129.223.183:8847')
+                this.#websocket = new WebSocket('ws://127.0.0.1:8847')
                 console.warn('reopen websocket!')
             }, 30000)
         }

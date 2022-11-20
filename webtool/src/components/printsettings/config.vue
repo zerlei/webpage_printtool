@@ -5,6 +5,7 @@ import {
     NSpace,
     NDataTable,
     useDialog,
+    NInput
 
 } from 'naive-ui'
 import { Add } from "@vicons/ionicons5";
@@ -12,6 +13,7 @@ import ServerNet from "../websocket"
 
 import { ref, onMounted, h } from 'vue'
 import configModal from './configModal.vue'
+const emit = defineEmits(['printerConfigUpdated'])
 const dialog = useDialog();
 const _configModal = ref(null)
 const tableData = ref([])
@@ -77,6 +79,7 @@ async function getPrinterConfigInfo() {
     if (res.IsSuccess) {
         if (res.Result && res.Result.length > 0) {
             tableData.value = res.Result
+            emit('printerConfigUpdated', res.Result)
             return
         }
     }
@@ -84,32 +87,27 @@ async function getPrinterConfigInfo() {
 }
 
 async function delOnePrinterConfig(Id) {
-    //TODO
-    fetch(`http://127.0.0.1:8847/PrintController/deloneprintconfig?Id=${row.Id}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.isSuccess) {
-                dialog.success({
-                    title: "成功",
-                    content: "成功删除！",
-                    positiveText: '好的',
-                    onPositiveClick: () => {
-                    }
-                })
-                getPrinterConfigInfo()
+    let res = await ServerNet.send({ MsgType: "DelOnePrintConfig", Data: Id })
+    if (res.IsSuccess) {
+        if (res.IsSuccess ) {
+            dialog.success({
+                title: "删除",
+                content: "删除成功了！",
+                positiveText: '😒',
+                
+            })
+            getPrinterConfigInfo()
+            return
+        } else {
+            dialog.error({
+                title: "删除失败了",
+                content: res.Message,
+                positiveText: '🤪',
+                
+            })
 
-            } else {
-                dialog.error({
-                    title: "失败",
-                    content: data.message,
-                    positiveText: '好的',
-                    onPositiveClick: () => {
-                    }
-                })
-
-            }
-
-        });
+        }
+    }
 }
 
 onMounted(async () => {
@@ -141,6 +139,10 @@ onMounted(async () => {
         </n-button>
     </n-space>
     <n-data-table :columns="columns" :data="tableData" style="min-height: 600px;max-height: 600px;" />
+    <n-input>
+
+    </n-input>
+
 </template>
 
 <style>

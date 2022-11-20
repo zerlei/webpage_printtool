@@ -83,7 +83,7 @@ watch(Name, (n, o) => {
 async function addOnePrintConfig(ob) {
 
     let res = await ServerNet.send({ MsgType: "AddOnePrintConfig", Data: ob })
-    if (res.IsSuccess && res.Result.IsSuccess) {
+    if (res.IsSuccess ) {
         dialog.success({
             title: '成功',
             content: '添加成功！',
@@ -99,7 +99,7 @@ async function addOnePrintConfig(ob) {
     } else {
         dialog.error({
             title: '失败',
-            content: res.Result.Message,
+            content: res.Message,
             positiveText: '好的',
             onPositiveClick: () => {
             }
@@ -109,37 +109,29 @@ async function addOnePrintConfig(ob) {
 
 }
 async function updateOnePrintConfig(ob) {
-    // //TODO
-    // fetch('http://127.0.0.1:8847/PrintController/updateoneprintconfig', {
-    //     method: "POST",
-    //     body: JSON.stringify(ob)
-    // })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         if (data.isSuccess) {
-    //             dialog.success({
-    //                 title: '成功',
-    //                 content: '修改成功！',
-    //                 positiveText: '好的',
-    //                 onPositiveClick: () => {
-    //                 }
-    //             })
-    //             showModal.value = false
-    //             currentStep.value = 1
-    //             acceptinfo.value = "下一步"
-    //             beforedisabled.value = true
-    //             emit('reload')
-
-    //         } else {
-    //             dialog.error({
-    //                 title: '失败',
-    //                 content: data.message,
-    //                 positiveText: '好的',
-    //                 onPositiveClick: () => {
-    //                 }
-    //             })
-    //         }
-    //     });
+    let res = await ServerNet.send({ MsgType: "UpdateOnePrintConfig", Data: ob })
+    if (res.IsSuccess) {
+        dialog.success({
+            title: '成功',
+            content: '修改成功！',
+            positiveText: '好的',
+            onPositiveClick: () => {
+            }
+        })
+        showModal.value = false
+        currentStep.value = 1
+        acceptinfo.value = "下一步"
+        beforedisabled.value = true
+        emit('reload')
+    } else {
+        dialog.error({
+            title: '失败',
+            content: res.Message,
+            positiveText: '好的',
+            onPositiveClick: () => {
+            }
+        })
+    }
 }
 //#region 显示效果
 function acceptNext() {
