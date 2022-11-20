@@ -274,6 +274,11 @@ void PrintMsgStation::toPrint(
     page.ConfigName = (*list)[*i]["ConfigName"].asString();
     page.PrintMode = (*list)[*i]["PrintMode"].asString();
     _db.printedPageInsert(page);
+    if(this->_websoc_msg_push) {
+      Json::Value v;
+      v["MsgType"] = "PrintPageChanged";
+      _websoc_msg_push(v);
+    }
 
     *i = *i + 1;
     if (*i == size) {
@@ -330,9 +335,12 @@ void PrintMsgStation::toPrint(
 
 const Json::Value PrintMsgStation::getPrintedPage(int size_, int page_) {
   Json::Value vs;
-  for (auto &x : _db.printedPageQuery(size_, page_)) {
-    vs.append(x.getReflectionJson());
+
+  auto [Count,Rows] = _db.printedPageQuery(size_, page_);
+  for (auto &x : Rows) {
+    vs["Rows"].append(x.getReflectionJson());
   }
+  vs["Count"] = Count;
   return vs;
 }
 
@@ -364,6 +372,7 @@ void PrintMsgStation::setClientWebSockState(bool is_) {
   if (_websoc_msg_push) {
     Json::Value v;
     v["Id"] = "😀";
+    v["MsgType"] = "WebSocState";
     v["WebsocConnected"] = is_;
     _websoc_msg_push(v);
   }

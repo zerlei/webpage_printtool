@@ -83,7 +83,7 @@ struct PrintedPage {
       FromIp = page_["FromIp"].asString();
       FromType = page_["FromType"].asString();
       PageName = page_["PageName"].asString();
-      ConfigName = page_["ConfigName"].asInt();
+      ConfigName = page_["ConfigName"].asString();
       PrintMode = page_["PrintMode"].asString();
       IsSuccess = page_["IsSuccess"].asBool();
       _is_correct = true;
@@ -99,7 +99,7 @@ struct PrintedPage {
       FromIp = query_->value(2).toString().toStdString();
       FromType = query_->value(3).toString().toStdString();
       PageName = query_->value(4).toString().toStdString();
-      ConfigName = query_->value(5).toInt();
+      ConfigName = query_->value(5).toString().toStdString();
       PrintMode = query_->value(6).toString().toStdString();
       IsSuccess = query_->value(7).toBool();
     } catch (...) {

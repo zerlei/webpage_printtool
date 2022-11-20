@@ -24,7 +24,7 @@ public:
   std::vector<PrinterConfig> printerConfigQueryById(int Id_ = -1);
   std::vector<PrinterConfig> printerConfigQueryByName(const QString &Name_);
 
-  std::vector<PrintedPage> printedPageQuery(int page_size_, int page_index_);
+  std::tuple<int,std::vector<PrintedPage>>  printedPageQuery(int page_size_, int page_index_);
   bool printedPageInsert(const PrintedPage &pp_);
 
   std::string getWebsocketUrl();

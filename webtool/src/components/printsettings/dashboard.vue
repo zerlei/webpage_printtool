@@ -7,6 +7,7 @@ import {
     NDataTable
 
 } from 'naive-ui'
+import ServerNet from '../websocket'
 import { ref, onMounted, h } from 'vue'
 import { PlugConnected24Filled, PlugDisconnected24Filled } from "@vicons/fluent"
 const _server_websoc_connected_ = ref(true)
@@ -19,7 +20,12 @@ const columns = [
     { title: "请求类型", key: "FromType" },
     { title: "打印机配置名称", key: "ConfigName" },
     { title: "打印模式", key: "PrintMode" },
-    { title: "是否成功", key: "IsSuccess" }
+    { title: "是否成功", key: "IsSuccess",render(row) {
+        if(row.IsSuccess) {
+            return "😀成功"
+        }
+        return "🤪失败"
+    } }
 ]
 const loading = ref(true)
 const pagination = ref({
@@ -32,15 +38,21 @@ const pagination = ref({
 })
 
 function pageChanged(currentPage) {
-    if(!loading.value) {
+    if (!loading.value) {
         loading.value = true
         getPrintedPage(currentPage)
     }
 }
 async function getPrintedPage(currentPage) {
-//TODO
+    let res = await ServerNet.send({ MsgType: "GetPrintedPages", Data: { Size: 20, Page: currentPage } })
+    tableData.value = res.Result.Rows == null?[]: res.Result.Rows
+
+    pagination.value.page = currentPage
+    pagination.value.pageCount =  (res.Result.Count/20).toFixed(0)+1
+    pagination.value.itemCount = res.Result.Count
+    loading.value = false
 }
-onMounted( async ()=>{
+onMounted(async () => {
     getPrintedPage(1)
 })
 
@@ -79,6 +91,6 @@ onMounted( async ()=>{
     <h2>
         1.2 打印页面信息
     </h2>
-    <n-data-table :columns="columns" remote :data="tableData" :loading="loading" striped
+    <n-data-table :columns="columns" remote :data="tableData" :loading="loading" striped flex-height
         style="min-height: 600px;max-height: 600px;" :pagination="pagination" v-on:update:page="pageChanged" />
 </template>

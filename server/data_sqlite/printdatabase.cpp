@@ -6,6 +6,7 @@
 #include <format>
 #include <iostream>
 #include <qdebug.h>
+#include <tuple>
 #include <vector>
 #include <QDebug>
 
@@ -156,7 +157,7 @@ PrintDatabase::printerConfigQueryByName(const QString &Name) {
   }
 }
 
-std::vector<PrintedPage> PrintDatabase::printedPageQuery(int page_size_,
+ std::tuple<int,std::vector<PrintedPage>> PrintDatabase::printedPageQuery(int page_size_,
                                                            int page_index_) {
   std::vector<PrintedPage> pps;
   try {
@@ -164,15 +165,22 @@ std::vector<PrintedPage> PrintDatabase::printedPageQuery(int page_size_,
    select  * from printed_page order by Id limit %1 offset %2
   )")
                             .arg(page_size_)
-                            .arg(page_size_ * page_index_);
+                            .arg(page_size_ * (page_index_-1));
     if (_query->exec(query_sql)) {
       while (_query->next()) {
         pps.push_back(PrintedPage(_query.get()));
       }
     }
-    return pps;
+    QString query_sql1 = QString("select COUNT(1) from printed_page");
+    int Count = 0;
+    if(_query->exec(query_sql1)) {
+      while (_query->next()) {
+        Count = _query->value(0).toLongLong();
+      }
+    }
+    return std::make_tuple(Count,pps);
   } catch (...) {
-    return pps;
+    return std::make_tuple(0,pps);
   }
 }
 
