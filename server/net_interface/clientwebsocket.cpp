@@ -22,9 +22,14 @@ ClientWebsoc::ClientWebsoc(PrintMsgStation &printmsgstation)
   connect(&_webSoc, &QWebSocket::textMessageReceived, this,
           &ClientWebsoc::slotReceiveMsg);
   connect(&_timer, &QTimer::timeout, this, &ClientWebsoc::slotTimerReConnect);
+
+  this->openUrl(QUrl(_print_msg_station.getWebsocketUrl().c_str()));
 }
 
 void ClientWebsoc::openUrl(const QUrl &url) {
+  if(_url.toString() == url.toString()) {
+    return;
+  }
   _url = url;
   if (_webSoc.state() != QAbstractSocket::UnconnectedState) {
     _webSoc.close(QWebSocketProtocol::CloseCodeNormal);

@@ -18,7 +18,7 @@ struct PrinterConfig {
       Name = config_["Name"].asString();
       PrinterName = config_["PrinterName"].asString();
       PaperName = config_["PaperName"].asString();
-      Orientation = config_["PaperName"].asString();
+      Orientation = config_["Orientation"].asString();
       TopMargin = config_["TopMargin"].asInt();
       BottomMargin = config_["BottomMargin"].asInt();
       LeftMargin = config_["LeftMargin"].asInt();

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>😀F11, See the console!😀</h1>
+</body>
+
+</html>
+<script>
+
+    let sendArr = [
+
+        {
+            Id: "",
+            MsgType: "GetPrintInfo"
+        },
+        {
+            Id: "",
+            MsgType: "AddOnePrintConfig",
+            Data: {
+                Name: "Hi" + Math.random(),
+                PrinterName: "导出为WPS PDF",
+                TopMargin: 0,
+                BottomMargin: 1,
+                LeftMargin: 2,
+                RightMargin: 2,
+                Orientation: "横向",
+                PaperName: "A4"
+            }
+        },
+        {
+            Id: "",
+            MsgType: "DelOnePrintConfig",
+            Data: 1//change it
+        },
+        {
+            Id: "",
+            MsgType: "UpdateOnePrintConfig",
+            Data: {
+                Name: "test213",
+                PrinterName: "导出为WPS PDF",
+                TopMargin: 0,
+                BottomMargin: 1,
+                LeftMargin: 2,
+                RightMargin: 2,
+                Orientation: "横向",
+                PaperName: "A4"
+            }
+        },
+
+
+        {
+            Id: "",
+            MsgType: "GetPrintConfigs"
+        },
+        {
+            Id: "",
+            MsgType: "ToPrint",
+            Data: [
+                {
+                    PageUrl: "https://www.bing.com",
+                    ConfigName: "sdf",
+                    PrintMode: "LoadAchieve"
+                }
+            ]
+        },
+        {
+            Id: "",
+            MsgType: "GetPrintedPages",
+            Data: {
+                Size: 20,
+                Page: 1
+            }
+        },
+        {
+            Id: "",
+            MsgType: "InsertOrUpdateWebsocketUrl",
+            Data: "ws://127.0.0.1:8001"
+        },
+        {
+            Id: "GetWebsocketUrl",
+            MsgType: "GetWebsocketUrl"
+        }
+
+    ]
+
+
+</script>

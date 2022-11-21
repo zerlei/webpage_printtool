@@ -29,3 +29,6 @@ lerna-debug.log*
 /server/.cache
 /server/uploads
 /server/.vscode
+
+
+/test/node_modules

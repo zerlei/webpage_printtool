@@ -1,6 +1,7 @@
 #include "printdatabase.h"
 #include "base.h"
 #include <QApplication>
+#include <QDebug>
 #include <algorithm>
 #include <cmath>
 #include <format>
@@ -8,7 +9,7 @@
 #include <qdebug.h>
 #include <tuple>
 #include <vector>
-#include <QDebug>
+
 
 PrintDatabase::PrintDatabase() {
   _db = QSqlDatabase::addDatabase("QSQLITE");
@@ -60,10 +61,11 @@ PrintDatabase::printerConfigInsert(const PrinterConfig &pc) {
             )",
         pc.Name, pc.PrinterName, pc.TopMargin, pc.BottomMargin, pc.LeftMargin,
         pc.RightMargin, pc.Orientation, pc.PaperName);
+    qDebug() << QString::fromStdString(insert_sql);
     if (_query->exec(QString::fromStdString(insert_sql))) {
       return std::make_tuple(true, "");
     }
-    throw;
+    throw 1;
 
   } catch (...) {
     return std::make_tuple(false, "未知的错误发生了~");
@@ -139,7 +141,7 @@ std::vector<PrinterConfig> PrintDatabase::printerConfigQueryById(int Id) {
   }
 }
 
-std::vector<PrinterConfig> 
+std::vector<PrinterConfig>
 PrintDatabase::printerConfigQueryByName(const QString &Name) {
   std::vector<PrinterConfig> pcs;
   try {
@@ -157,15 +159,15 @@ PrintDatabase::printerConfigQueryByName(const QString &Name) {
   }
 }
 
- std::tuple<int,std::vector<PrintedPage>> PrintDatabase::printedPageQuery(int page_size_,
-                                                           int page_index_) {
+std::tuple<int, std::vector<PrintedPage>>
+PrintDatabase::printedPageQuery(int page_size_, int page_index_) {
   std::vector<PrintedPage> pps;
   try {
     QString query_sql = QString(R"(
    select  * from printed_page order by Id limit %1 offset %2
   )")
                             .arg(page_size_)
-                            .arg(page_size_ * (page_index_-1));
+                            .arg(page_size_ * (page_index_ - 1));
     if (_query->exec(query_sql)) {
       while (_query->next()) {
         pps.push_back(PrintedPage(_query.get()));
@@ -173,14 +175,14 @@ PrintDatabase::printerConfigQueryByName(const QString &Name) {
     }
     QString query_sql1 = QString("select COUNT(1) from printed_page");
     int Count = 0;
-    if(_query->exec(query_sql1)) {
+    if (_query->exec(query_sql1)) {
       while (_query->next()) {
         Count = _query->value(0).toLongLong();
       }
     }
-    return std::make_tuple(Count,pps);
+    return std::make_tuple(Count, pps);
   } catch (...) {
-    return std::make_tuple(0,pps);
+    return std::make_tuple(0, pps);
   }
 }
 
@@ -194,18 +196,15 @@ bool PrintDatabase::printedPageInsert(const PrintedPage &pp_) {
           values('{}','{}','{}','{}','{}','{}',{})
   )",
                     pp_.PrintTime, pp_.FromIp, pp_.FromType, pp_.PageName,
-                    pp_.ConfigName, pp_.PrintMode, pp_.IsSuccess?1:0);
-
-
-
+                    pp_.ConfigName, pp_.PrintMode, pp_.IsSuccess ? 1 : 0);
 
     QString _q = QString::fromStdString(query_sql);
-    qDebug()<<_q;
+    qDebug() << _q;
     if (_query->exec(_q)) {
       return true;
     }
     auto err = _query->lastQuery();
-    qDebug()<<err;
+    qDebug() << err;
     return false;
   } catch (...) {
     return false;
@@ -215,7 +214,7 @@ bool PrintDatabase::printedPageInsert(const PrintedPage &pp_) {
 std::string PrintDatabase::getWebsocketUrl() {
 
   try {
-    auto query_sql = "select * from websocket_url";
+    auto query_sql = "select * from remote_websocket_url";
     if (_query->exec(query_sql)) {
       while (_query->next()) {
         return _query->value(0).toString().toStdString();
@@ -232,9 +231,8 @@ bool PrintDatabase::insertOrUpdateWebsocketUrl(const std::string &websoc_url_) {
     auto query_sql1 = "select 1 from websocket_url";
     if (_query->exec(query_sql1)) {
       while (_query->next()) {
-        auto query_sql =
-            std::format("update websocket_url set WebsocketUrl='{}'",
-                        websoc_url_);
+        auto query_sql = std::format(
+            "update websocket_url set WebsocketUrl='{}'", websoc_url_);
         _query->exec(query_sql.c_str());
         return true;
       }
