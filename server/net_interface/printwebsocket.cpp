@@ -1,24 +1,25 @@
 #include "printwebsocket.h"
+#include <QDebug>
 #include <json/value.h>
 #include <json/writer.h>
 
+
 PrintWebSocket::PrintWebSocket(PrintMsgStation &print_msg_station)
     : _printmsgstation(print_msg_station) {
-      auto f = [this](const Json::Value& v) {
-        auto msg = this->JsonValueToString(v);
-        for(auto & x : this->_webconnections) {
-          x->send(msg);
-        }
-      };
-      _printmsgstation._websoc_msg_push = f;
+  auto f = [this](const Json::Value &v) {
+    auto msg = this->JsonValueToString(v);
+    for (auto &x : this->_webconnections) {
+      x->send(msg);
     }
+  };
+  _printmsgstation._websoc_msg_push = f;
+}
 
 void PrintWebSocket::handleNewMessage(
     const WebSocketConnectionPtr &webconnection, std::string &&str,
     const WebSocketMessageType &) {
 
-
-  if(str.empty()) {
+  if (str.empty()) {
     return;
   }
   auto f = [this, webconnection](const Json::Value &value) {
@@ -27,12 +28,13 @@ void PrintWebSocket::handleNewMessage(
   std::string ip = webconnection->localAddr().toIp().c_str();
 
   std::string fromtype = "ServerWebsocket";
-  _printmsgstation.workWithStringAsync(str,ip,fromtype, f);
+  _printmsgstation.workWithStringAsync(str, ip, fromtype, f);
 }
 
 void PrintWebSocket::handleNewConnection(
     const HttpRequestPtr &, const WebSocketConnectionPtr &webconnection) {
   _webconnections.push_back(webconnection);
+  qDebug() << "WebSoc Count:" << _webconnections.size();
 }
 
 void PrintWebSocket::handleConnectionClosed(
@@ -41,6 +43,5 @@ void PrintWebSocket::handleConnectionClosed(
 }
 
 std::string PrintWebSocket::JsonValueToString(const Json::Value &value) {
- return Json::FastWriter().write(value);
-
+  return Json::FastWriter().write(value);
 }

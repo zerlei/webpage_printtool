@@ -4,12 +4,16 @@ class Websoc {
     #websocket
     #reopentimer
     #senderTem
+    #ids
     constructor() {
         //Id,Msgtype,callback
         this.#listener = []
         //Id,resolve,time
         this.#sender = []
         this.#senderTem = []
+        this.#ids = []
+        this.#reopentimer = null
+        this.#websocket = null
         setInterval(() => {
             let now = Date.now()
             for (let i = 0; i < this.#sender.length;) {
@@ -18,8 +22,11 @@ class Websoc {
                         IsSuccess: false,
                         Message: "超时！"
                     }
+                    this.#backId(this.#sender[i].id)
                     this.#sender[i].resolve(resp)
                     this.#sender.splice(i, 1)
+
+                    //TODO Should remove #senderTem?
                 } else {
                     ++i;
                 }
@@ -29,7 +36,6 @@ class Websoc {
         this.#websocket = new WebSocket('ws://127.0.0.1:8847')
         this.#websocket.onopen = event => {
             console.warn("websocket connected!")
-            clearInterval(this.#reopentimer)
             while (this.#senderTem.length > 0) {
                 this.#websocket.send(JSON.stringify(this.#senderTem.pop()))
             }
@@ -39,10 +45,8 @@ class Websoc {
             this.#newMsg(event.data)
         }
         this.#websocket.onclose = event => {
-            this.#reopentimer = setInterval(() => {
-                this.#websocket = new WebSocket('ws://127.0.0.1:8847')
-                console.warn('reopen websocket!')
-            }, 30000)
+            console.log("onClose!")
+            this.#webSocOnClose(event)
         }
         this.#websocket.onerror = e => {
             if (this.#websocket.readyState) {
@@ -66,36 +70,55 @@ class Websoc {
             }
         }
     }
+    #getId() {
+        let i = 0
+        for (; i < this.#ids.length; ++i) {
+            if (!this.#ids[i].isUsed) {
+                this.#ids[i].isUsed = true
+                return this.#ids[i].id
+            }
+        }
+        this.#ids.push({
+            id: `${i}`,//use str
+            isUsed: true
+        })
+        return `${i}`
+    }
+    #backId(id) {
+        for (let i = 0; i < this.#ids.length; ++i) {
+            if (this.#ids[i].id == id) {
+                this.#ids[i].isUsed = false
+                return
+            }
+        }
+    }
     send(msg) {
-        if (!msg.Id) {
-            msg.Id = `${Date.now()}`
-        }
-
+        msg.Id = this.#getId()
         console.log(msg)
-        if (this.#websocket.readyState == 1) {
-            this.#websocket.send(JSON.stringify(msg))
-        } else {
-            this.#senderTem.push(msg)
-        }
-
         return new Promise(resolve => {
             this.#sender.push({
                 id: msg.Id,
                 resolve: resolve,
                 time: Date.now()
-
             })
+
+            if (this.#websocket.readyState == 1) {
+                this.#websocket.send(JSON.stringify(msg))
+            } else {
+                this.#senderTem.push(msg)
+            }
         })
+
+
     }
     #newMsg(data) {
         try {
 
             let ob = JSON.parse(data)
-
-            console.log(ob)
             //msg
             for (let i = 0; i < this.#sender.length;) {
                 if (this.#sender[i].id == ob.Id) {
+                    this.#backId(ob.Id)
                     this.#sender[i].resolve(ob)
                     this.#sender.splice(i, 1)
                 } else {
@@ -115,6 +138,36 @@ class Websoc {
 
         }
 
+
+    }
+    #reOpen() {
+        console.warn('reopen websocket!')
+        if (this.#websocket.readyState == 1) {
+            console.warn("had open!")
+            return
+        }
+        this.#websocket.close()
+        this.#websocket = new WebSocket('ws://127.0.0.1:8847')
+        this.#websocket.onopen = e1_ => {
+            console.warn("websocket connected!")
+            while (this.#senderTem.length > 0) {
+                this.#websocket.send(JSON.stringify(this.#senderTem.pop()))
+            }
+
+        }
+        this.#websocket.onmessage = e2_ => {
+            this.#newMsg(e2_.data)
+        }
+        this.#websocket.onclose = e3_ => {
+            //when connection failed the function will be call auto
+            this.#webSocOnClose(e3_)
+        }
+
+    }
+    #webSocOnClose(e_) {
+        setTimeout(() => {
+            this.#reOpen()
+        }, 10000)
 
     }
 
