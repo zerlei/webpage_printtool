@@ -19,7 +19,7 @@ QFrame#frame {
 	
     border-radius: 10px;
 	
-	border-image: url(:/bg/bg101.jpeg);
+	border-image:url(:/bg/bg.jpeg);
 }
 QWidget#mvwidget {
 border-top-left-radius:9px;
@@ -250,6 +250,8 @@ border-image: url(:/bg/close.png);
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="bg.qrc"/>
+ </resources>
  <connections/>
 </ui>

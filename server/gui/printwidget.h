@@ -2,6 +2,7 @@
 #define PRINTWIDGET_H
 
 #include <QWidget>
+#include <QSystemTrayIcon>
 
 namespace Ui {
 class PrintWidget;
@@ -17,6 +18,8 @@ public:
 
 private:
     Ui::PrintWidget *ui;
+    QSystemTrayIcon _tray_icon;
+
 };
 
 #endif // PRINTWIDGET_H

@@ -11,7 +11,7 @@ find_package(Drogon)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-find_package(Qt6 REQUIRED COMPONENTS Core PrintSupport WebSockets WebEngineCore WebEngineWidgets Sql Gui)
+find_package(Qt6 REQUIRED COMPONENTS Core PrintSupport WebSockets WebEngineCore WebEngineWidgets Sql Gui Widgets)
 
 # aux_source_directory(server SERVER)
 
@@ -35,6 +35,13 @@ add_executable(PrintWebPage
   net_interface/printcontroller.h
   net_interface/printwebsocket.cpp
   net_interface/printwebsocket.h
+
+  gui/bg.qrc
+  gui/movewidget.cpp
+  gui/movewidget.h
+  gui/printwidget.cpp
+  gui/printwidget.h
+  gui/printwidget.ui
 )
 target_link_libraries(PrintWebPage
     Qt${QT_VERSION_MAJOR}::Core
@@ -43,6 +50,7 @@ target_link_libraries(PrintWebPage
     Qt${QT_VERSION_MAJOR}::WebEngineWidgets
     Qt${QT_VERSION_MAJOR}::Sql
     Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::WebSockets
     ${DROGON_LIBRARIES})
 add_link_options(PrintWebPage PRIVATE -mwindows)

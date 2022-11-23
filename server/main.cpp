@@ -11,34 +11,40 @@
 #include <functional>
 #include <memory>
 #include <thread>
+#include "./gui/printwidget.h"
+#include "gui/printwidget.h"
 
 using namespace drogon;
 
 int main(int argc, char *argv[]) {
 
   QApplication a(argc, argv);
-  std::string docoment_root = "./";
-  if (argc <= 1) {
-    // return 0;
-  } else {
-    docoment_root = argv[1];
-  }
 
-  PrintMsgStation printstation;
-  auto c_websoc = std::make_shared<ClientWebsoc>(printstation);
-  auto s_websoc = std::make_shared<PrintWebSocket>(printstation);
-  auto controller = std::make_shared<PrintController>(printstation);
-  std::thread i([s_websoc, controller, &docoment_root]() {
-    app()
-        .setLogPath("./")
-        .setLogLevel(trantor::Logger::kWarn)
-        .addListener("0.0.0.0", 8847)
-        .setDocumentRoot(docoment_root)
-        .setThreadNum(1)
-        .registerController(controller)
-        .registerController(s_websoc)
-        .run();
-  });
+  PrintWidget w;
+  w.show();
+
+  // std::string docoment_root = "./";
+  // if (argc <= 1) {
+  //   // return 0;
+  // } else {
+  //   docoment_root = argv[1];
+  // }
+
+  // PrintMsgStation printstation;
+  // auto c_websoc = std::make_shared<ClientWebsoc>(printstation);
+  // auto s_websoc = std::make_shared<PrintWebSocket>(printstation);
+  // auto controller = std::make_shared<PrintController>(printstation);
+  // std::thread i([s_websoc, controller, &docoment_root]() {
+  //   app()
+  //       .setLogPath("./")
+  //       .setLogLevel(trantor::Logger::kWarn)
+  //       .addListener("0.0.0.0", 8847)
+  //       .setDocumentRoot(docoment_root)
+  //       .setThreadNum(1)
+  //       .registerController(controller)
+  //       .registerController(s_websoc)
+  //       .run();
+  // });
 
   return a.exec();
 }
