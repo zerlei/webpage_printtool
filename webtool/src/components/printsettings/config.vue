@@ -9,6 +9,7 @@ import {
 
 } from 'naive-ui'
 import { Add } from "@vicons/ionicons5";
+import { LogoRss } from "@vicons/ionicons5";
 import ServerNet from "../websocket"
 
 import { ref, onMounted, h } from 'vue'
@@ -89,12 +90,12 @@ async function getPrinterConfigInfo() {
 async function delOnePrinterConfig(Id) {
     let res = await ServerNet.send({ MsgType: "DelOnePrintConfig", Data: Id })
     if (res.IsSuccess) {
-        if (res.IsSuccess ) {
+        if (res.IsSuccess) {
             dialog.success({
                 title: "删除",
                 content: "删除成功了！",
                 positiveText: '😒',
-                
+
             })
             getPrinterConfigInfo()
             return
@@ -103,7 +104,7 @@ async function delOnePrinterConfig(Id) {
                 title: "删除失败了",
                 content: res.Message,
                 positiveText: '🤪',
-                
+
             })
 
         }
@@ -138,10 +139,19 @@ onMounted(async () => {
             添加
         </n-button>
     </n-space>
-    <n-data-table :columns="columns" :data="tableData" style="min-height: 600px;max-height: 600px;" />
-    <n-input>
+    <n-data-table :columns="columns" :data="tableData" flex-height style="min-height: 600px;max-height: 600px;" />
+    <n-space style="margin-top: 20px;width: 100%;">
+        <n-button type="info">
+            <template #icon>
+                <n-icon :size="20" :component="LogoRss"></n-icon>
+            </template>
+            远端websocket
+        </n-button>
+        <n-input style="width: 450px;">
 
-    </n-input>
+        </n-input>
+
+    </n-space>
 
 </template>
 

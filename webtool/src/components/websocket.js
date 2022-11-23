@@ -5,6 +5,7 @@ class Websoc {
     #reopentimer
     #senderTem
     #ids
+    //在这里打断点可能会导致debug错误，然后浏览器打不开页面， 这是为啥？
     constructor() {
         //Id,Msgtype,callback
         this.#listener = []
