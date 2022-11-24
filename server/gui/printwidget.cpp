@@ -21,7 +21,7 @@ PrintWidget::PrintWidget(QWidget *parent)
 
   connect(ui->btn_open_url, &QPushButton::clicked, [](bool){
     //NOTE  Windows Only 
-    system("start 127.0.0.1:8847");
+    system("start /MIN http://127.0.0.1:8847");
   });
   _tray_icon.setIcon(QIcon(":/bg/favicon.ico"));
   _tray_icon.setToolTip("打印助手哦😊");

@@ -10,6 +10,7 @@
 #include <memory>
 #include <string>
 #include <time.h>
+#include <tuple>
 
 PrintMsgStation::PrintMsgStation() {}
 
@@ -63,7 +64,9 @@ const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
                                       jsob["Data"]["Page"].asInt());
 
     } else if (msg_str == "GetWebsocketUrl") {
-      resp["Result"] = getWebsocketUrl();
+      auto [IsConnected, WebSocUrl] = getWebsocketUrAndState();
+      resp["Result"]["IsConnected"] = IsConnected;
+      resp["Result"]["WebSocUrl"] = WebSocUrl;
 
     } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
       resp["IsSuccess"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
@@ -136,8 +139,8 @@ void PrintMsgStation::workWithJsonAsync(
       callback(resp);
 
     } else if (msg_str == "ToPrint") {
-      auto f = [resp,callback](const Json::Value& j)mutable {
-       resp["Result"] = j;
+      auto f = [resp, callback](const Json::Value &j) mutable {
+        resp["Result"] = j;
         callback(resp);
       };
       toPrint(jsob["Data"], jsob["IpInfo"].asString(),
@@ -149,7 +152,10 @@ void PrintMsgStation::workWithJsonAsync(
       callback(resp);
 
     } else if (msg_str == "GetWebsocketUrl") {
-      resp["Result"] = getWebsocketUrl();
+      auto [IsConnected, WebSocUrl] = getWebsocketUrAndState();
+      resp["Result"]["IsConnected"] = IsConnected;
+      resp["Result"]["WebSocUrl"] = WebSocUrl;
+
       callback(resp);
 
     } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
@@ -274,7 +280,7 @@ void PrintMsgStation::toPrint(
     page.ConfigName = (*list)[*i]["ConfigName"].asString();
     page.PrintMode = (*list)[*i]["PrintMode"].asString();
     _db.printedPageInsert(page);
-    if(this->_websoc_msg_push) {
+    if (this->_websoc_msg_push) {
       Json::Value v;
       v["MsgType"] = "PrintPageChanged";
       _websoc_msg_push(v);
@@ -336,7 +342,7 @@ void PrintMsgStation::toPrint(
 const Json::Value PrintMsgStation::getPrintedPage(int size_, int page_) {
   Json::Value vs;
 
-  auto [Count,Rows] = _db.printedPageQuery(size_, page_);
+  auto [Count, Rows] = _db.printedPageQuery(size_, page_);
   for (auto &x : Rows) {
     vs["Rows"].append(x.getReflectionJson());
   }
@@ -357,7 +363,14 @@ const Json::Value PrintMsgStation::getScreenInfo() {
   }
   return v;
 }
-std::string PrintMsgStation::getWebsocketUrl() { return _db.getWebsocketUrl(); }
+std::tuple<bool, std::string> PrintMsgStation::getWebsocketUrAndState() {
+
+  auto is_connected = false;
+  if (_get_websoc_state) {
+    is_connected = _get_websoc_state();
+  }
+  return std::make_tuple(is_connected, _db.getWebsocketUrl());
+}
 bool PrintMsgStation::insertOrUpdateWebsocketUrl(
     const std::string &websoc_url_) {
 
@@ -373,6 +386,7 @@ void PrintMsgStation::setClientWebSockState(bool is_) {
     Json::Value v;
     v["Id"] = "😀";
     v["MsgType"] = "WebSocState";
+    v["WebSocUrl"] = _db.getWebsocketUrl();
     v["WebsocConnected"] = is_;
     _websoc_msg_push(v);
   }

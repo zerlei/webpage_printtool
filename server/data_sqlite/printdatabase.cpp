@@ -164,7 +164,7 @@ PrintDatabase::printedPageQuery(int page_size_, int page_index_) {
   std::vector<PrintedPage> pps;
   try {
     QString query_sql = QString(R"(
-   select  * from printed_page order by Id limit %1 offset %2
+   select  * from printed_page order by Id desc limit %1 offset %2
   )")
                             .arg(page_size_)
                             .arg(page_size_ * (page_index_ - 1));
@@ -228,17 +228,17 @@ std::string PrintDatabase::getWebsocketUrl() {
 
 bool PrintDatabase::insertOrUpdateWebsocketUrl(const std::string &websoc_url_) {
   try {
-    auto query_sql1 = "select 1 from websocket_url";
+    auto query_sql1 = "select 1 from remote_websocket_url";
     if (_query->exec(query_sql1)) {
       while (_query->next()) {
         auto query_sql = std::format(
-            "update websocket_url set WebsocketUrl='{}'", websoc_url_);
+            "update remote_websocket_url set WebsocketUrl='{}'", websoc_url_);
         _query->exec(query_sql.c_str());
         return true;
       }
     }
     auto query_sql = std::format(
-        "insert into websocket_url(WebsocketUrl) values('{}')", websoc_url_);
+        "insert into remote_websocket_url(WebsocketUrl) values('{}')", websoc_url_);
 
     _query->exec(query_sql.c_str());
     return true;

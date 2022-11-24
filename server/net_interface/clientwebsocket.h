@@ -7,6 +7,8 @@
 #include <QWidget>
 #include <functional>
 #include <qtimer.h>
+#include <qtmetamacros.h>
+#include <qurl.h>
 
 
 class ClientWebsoc : public QObject {
@@ -25,8 +27,11 @@ private:
 private:
 std::string JsonValueToString(const Json::Value &);
 
+Q_SIGNALS:
+void signalsetWebSocUrl(const QString url);
 private slots:
   void slotTimerReConnect();
+  void slotOpenUrl(const QString url_str);
 
   void slotReceiveMsg(const QString &message);
   void slotOnConnect();

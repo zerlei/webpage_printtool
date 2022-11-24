@@ -6,12 +6,22 @@
 #include <json/writer.h>
 #include <memory>
 #include <qtimer.h>
+#include <qtmetamacros.h>
+#include <qurl.h>
 #include <string>
 
 ClientWebsoc::ClientWebsoc(PrintMsgStation &printmsgstation)
     : _print_msg_station(printmsgstation) {
-  auto f = [this](const std::string &url) { this->openUrl(QUrl(url.c_str())); };
+  auto f = [this](const std::string &url) { 
+    
+    QString url_str(url.c_str());
+    emit signalsetWebSocUrl(url_str);
+  };
   _print_msg_station._set_websoc_url = f;
+
+  _print_msg_station._get_websoc_state = [this]() {
+    return this->_webSoc.state() == 1;
+  };
   _webSoc.ignoreSslErrors();
   connect(&_webSoc, &QWebSocket::connected, this, &ClientWebsoc::slotOnConnect);
   connect(&_webSoc, &QWebSocket::disconnected, this,
@@ -22,8 +32,10 @@ ClientWebsoc::ClientWebsoc(PrintMsgStation &printmsgstation)
   connect(&_webSoc, &QWebSocket::textMessageReceived, this,
           &ClientWebsoc::slotReceiveMsg);
   connect(&_timer, &QTimer::timeout, this, &ClientWebsoc::slotTimerReConnect);
+  connect(this, &ClientWebsoc::signalsetWebSocUrl,this,&ClientWebsoc::slotOpenUrl, Qt::QueuedConnection);
 
-  this->openUrl(QUrl(_print_msg_station.getWebsocketUrl().c_str()));
+  auto [is_connected,url] = _print_msg_station.getWebsocketUrAndState();
+  this->openUrl(QUrl(url.c_str()));
 }
 
 void ClientWebsoc::openUrl(const QUrl &url) {
@@ -70,4 +82,8 @@ void ClientWebsoc::slotErr(QAbstractSocket::SocketError error) {
 void ClientWebsoc::slotSSLErr(const QList<QSslError> &errors) {}
 std::string ClientWebsoc::JsonValueToString(const Json::Value &value) {
   return Json::FastWriter().write(value);
+}
+void ClientWebsoc::slotOpenUrl(const QString url_str) {
+  QUrl url(url_str);
+  this->openUrl(url);
 }

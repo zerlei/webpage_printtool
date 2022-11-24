@@ -23,28 +23,28 @@ int main(int argc, char *argv[]) {
   PrintWidget w;
   w.show();
 
-  // std::string docoment_root = "./";
-  // if (argc <= 1) {
-  //   // return 0;
-  // } else {
-  //   docoment_root = argv[1];
-  // }
+  std::string docoment_root = "./";
+  if (argc <= 1) {
+    // return 0;
+  } else {
+    docoment_root = argv[1];
+  }
 
-  // PrintMsgStation printstation;
-  // auto c_websoc = std::make_shared<ClientWebsoc>(printstation);
-  // auto s_websoc = std::make_shared<PrintWebSocket>(printstation);
-  // auto controller = std::make_shared<PrintController>(printstation);
-  // std::thread i([s_websoc, controller, &docoment_root]() {
-  //   app()
-  //       .setLogPath("./")
-  //       .setLogLevel(trantor::Logger::kWarn)
-  //       .addListener("0.0.0.0", 8847)
-  //       .setDocumentRoot(docoment_root)
-  //       .setThreadNum(1)
-  //       .registerController(controller)
-  //       .registerController(s_websoc)
-  //       .run();
-  // });
+  PrintMsgStation printstation;
+  auto c_websoc = std::make_shared<ClientWebsoc>(printstation);
+  auto s_websoc = std::make_shared<PrintWebSocket>(printstation);
+  auto controller = std::make_shared<PrintController>(printstation);
+  std::thread i([s_websoc, controller, &docoment_root]() {
+    app()
+        .setLogPath("./")
+        .setLogLevel(trantor::Logger::kWarn)
+        .addListener("0.0.0.0", 8847)
+        .setDocumentRoot(docoment_root)
+        .setThreadNum(1)
+        .registerController(controller)
+        .registerController(s_websoc)
+        .run();
+  });
 
   return a.exec();
 }

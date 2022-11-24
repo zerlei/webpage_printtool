@@ -128,7 +128,7 @@ class Websoc {
             }
             //listener
             for (let i = 0; i < this.#listener.length; ++i) {
-                if (this.#listener[i].msgtype == ob.msgtype) {
+                if (this.#listener[i].msgtype == ob.MsgType) {
                     this.#listener[i].callback(ob)
                 }
             }

@@ -11,7 +11,6 @@ import {
 import { Add } from "@vicons/ionicons5";
 import { LogoRss } from "@vicons/ionicons5";
 import ServerNet from "../websocket"
-
 import { ref, onMounted, h } from 'vue'
 import configModal from './configModal.vue'
 const emit = defineEmits(['printerConfigUpdated'])
@@ -72,6 +71,8 @@ const columns = [
         }
     }
 ]
+
+const _webSocketUrl = ref(null)
 function add() {
     _configModal.value.showOrHide('add', {})
 }
@@ -110,6 +111,27 @@ async function delOnePrinterConfig(Id) {
         }
     }
 }
+async function InsertOrUpdateWebsocketUrl() {
+
+    let res = await ServerNet.send({ MsgType: "InsertOrUpdateWebsocketUrl", Data: _webSocketUrl.value })
+    if (res.IsSuccess) {
+        dialog.success({
+            title: "成功",
+            content: "设置成功了！",
+            positiveText: '😀',
+
+        })
+    }
+    else {
+        dialog.error({
+            title: "失败了~",
+            content: res.Message,
+            positiveText: '😢',
+
+        })
+    }
+
+}
 
 onMounted(async () => {
 
@@ -119,6 +141,11 @@ onMounted(async () => {
         _configModal.value.setPrintInfoData(res.Result)
     }
     getPrinterConfigInfo();
+
+    let res2 = await ServerNet.send({ MsgType: "GetWebsocketUrl" })
+    if(res2.IsSuccess) {
+        _webSocketUrl.value = res2.Result
+    }
 })
 
 
@@ -141,13 +168,13 @@ onMounted(async () => {
     </n-space>
     <n-data-table :columns="columns" :data="tableData" flex-height style="min-height: 600px;max-height: 600px;" />
     <n-space style="margin-top: 20px;width: 100%;">
-        <n-button type="info">
+        <n-button @click="InsertOrUpdateWebsocketUrl" type="info">
             <template #icon>
                 <n-icon :size="20" :component="LogoRss"></n-icon>
             </template>
             远端websocket
         </n-button>
-        <n-input style="width: 450px;">
+        <n-input v-model:value="_webSocketUrl" style="width: 450px;">
 
         </n-input>
 

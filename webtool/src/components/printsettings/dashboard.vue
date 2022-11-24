@@ -11,6 +11,7 @@ import ServerNet from '../websocket'
 import { ref, onMounted, h } from 'vue'
 import { PlugConnected24Filled, PlugDisconnected24Filled } from "@vicons/fluent"
 const _server_websoc_connected_ = ref(true)
+const _websoc_url = ref("")
 
 const tableData = ref([])
 const columns = [
@@ -54,6 +55,13 @@ async function getPrintedPage(currentPage) {
 }
 onMounted(async () => {
     getPrintedPage(1)
+    //TODO
+    ServerNet.listen("dddd","WebSocState",(data)=>{
+        _server_websoc_connected_.value = data.WebsocConnected
+        _websoc_url = data.WebSocUrl
+    }
+    
+    )
 })
 
 </script>
@@ -84,7 +92,7 @@ onMounted(async () => {
             </n-tooltip>
         </div>
         <n-gradient-text type="info" style=" font-size: 40px;">
-            websockerURL
+            {{_websoc_url}}
         </n-gradient-text>
 
     </n-space>

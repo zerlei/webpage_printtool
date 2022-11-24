@@ -7,6 +7,7 @@
 #include <json/value.h>
 #include <memory>
 #include <string>
+#include <tuple>
 class PrintMsgStation : QObject {
   Q_OBJECT
 public:
@@ -30,7 +31,7 @@ public:
   const Json::Value getPrintedPage(int size, int page);
 
   const Json::Value getScreenInfo();
-  std::string getWebsocketUrl();
+  std::tuple<bool,std::string>  getWebsocketUrAndState();
   bool insertOrUpdateWebsocketUrl(const std::string &);
 
   void setClientWebSockState(bool);
@@ -45,6 +46,8 @@ public:
   std::function<void(const Json::Value&)> _websoc_msg_push{nullptr};
 
   std::function<void(const std::string& )> _set_websoc_url{nullptr};
+
+  std::function<bool()> _get_websoc_state{nullptr};
 };
 
 #endif // PRINTMSGSTATION_H
