@@ -55,10 +55,15 @@ async function getPrintedPage(currentPage) {
 }
 onMounted(async () => {
     getPrintedPage(1)
-    //TODO
-    ServerNet.listen("dddd","WebSocState",(data)=>{
+
+    let res =  await ServerNet.send({ MsgType: "GetWebsocketUrl"})
+    if(res.IsSuccess) {
+        _server_websoc_connected_.value = res.Result.IsConnected
+        _websoc_url.value = res.Result.WebSocUrl
+    }
+    ServerNet.listen("dashboard","WebSocState",(data)=>{
         _server_websoc_connected_.value = data.WebsocConnected
-        _websoc_url = data.WebSocUrl
+        _websoc_url.value = data.WebSocUrl
     }
     
     )
@@ -91,10 +96,9 @@ onMounted(async () => {
                 还没有连接...🦉
             </n-tooltip>
         </div>
-        <n-gradient-text type="info" style=" font-size: 40px;">
+        <div style="font-size: 40px; color: aquamarine;">
             {{_websoc_url}}
-        </n-gradient-text>
-
+        </div>
     </n-space>
     <h2>
         1.2 打印页面信息

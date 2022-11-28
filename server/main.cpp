@@ -10,6 +10,7 @@
 #include <drogon/drogon.h>
 #include <functional>
 #include <memory>
+#include <qapplication.h>
 #include <thread>
 #include "./gui/printwidget.h"
 #include "gui/printwidget.h"
@@ -22,8 +23,8 @@ int main(int argc, char *argv[]) {
 
   PrintWidget w;
   w.show();
-
-  std::string docoment_root = "./";
+  auto dr =  QApplication::applicationDirPath()+"/wwwroot/";
+  std::string docoment_root = dr.toStdString();
   if (argc <= 1) {
     // return 0;
   } else {

@@ -31,7 +31,7 @@ public:
   const Json::Value getPrintedPage(int size, int page);
 
   const Json::Value getScreenInfo();
-  std::tuple<bool,std::string>  getWebsocketUrAndState();
+  std::string getWebsocketUrl();
   bool insertOrUpdateWebsocketUrl(const std::string &);
 
   void setClientWebSockState(bool);

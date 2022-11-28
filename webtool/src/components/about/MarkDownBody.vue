@@ -5,16 +5,12 @@
 </template>
 
 <script setup>
+
 import hljs from 'highlight.js'
 import MarkdownIt from 'markdown-it'
-// import markdownItMermaid from 'markdown-it-mermaid'
 import mermaid from 'mermaid/dist/mermaid'
-import * as MkPlantUml from 'markdown-it-plantuml'
-import Viz from 'viz.js';
-import { Module, render } from 'viz.js/full.render.js'
 import { ref, nextTick, onActivated, onDeactivated, onMounted } from 'vue'
 let scrollBarEle
-var viz = new Viz({ Module, render });
 const md = new MarkdownIt(
     {
         highlight: function (str, lang) {
@@ -27,11 +23,7 @@ const md = new MarkdownIt(
             // if(lang== 'plantuml') {
             //     return `<div class="hi">${str}</div>`
             // }
-            if (lang == 'graphviz') {
-                viz.renderString(str).then(e=>{
-                    //console.log(e)
-                })
-            }
+
             if (lang && hljs.getLanguage(lang)) {
                 try {
                     return hljs.highlight(str, { language: lang }).value;
@@ -42,8 +34,6 @@ const md = new MarkdownIt(
         }
     }
 )
-// md.use(MkPlantUml)
-// md.use(markdownItMermaid)
 const Mdcontent = ref(null)
 let anchorArr = []
 let isDown = true
@@ -74,11 +64,12 @@ async function updateContent(MDText) {
 
     Mdcontent.value = md.render(MDText)
     await nextTick()
+
     let MdDiv = document.getElementById("blog_MdBody")
     anchorArr = []
     let child_ = MdDiv.firstChild
     let anchorIndex = 0
-    while (child_ ) {
+    while (child_) {
 
         if (child_.nodeName === "H1") {
             let anchorOb = {}
@@ -136,15 +127,15 @@ async function updateContent(MDText) {
         } else if (child_.nodeName === "P") {
             let _child_ = child_.firstChild
             while (_child_) {
-                
+
                 //console.log(_child_.nodeName)
 
-                if(_child_.nodeName === "IMG") {
-                     child_.classList.add('ContainImg')
+                if (_child_.nodeName === "IMG") {
+                    child_.classList.add('ContainImg')
                     break
                 }
                 _child_ = _child_.nextSibling
-                
+
             }
             //
         }
@@ -179,7 +170,6 @@ function ScrollAction(e) {
 function AnchorIt(AnchorStr) {
     let anchorOb = document.getElementById(AnchorStr)
 
-    console.log(anchorOb.offsetTop)
     scrollBarEle.scrollTo({ top: anchorOb.offsetTop })
 }
 const emit = defineEmits(["mdRenderAnchor", 'currentAnchor'])
@@ -191,4 +181,5 @@ defineExpose({
 </script>
 
 <style>
+
 </style>

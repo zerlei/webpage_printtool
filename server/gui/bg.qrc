@@ -3,5 +3,6 @@
         <file>bg.jpeg</file>
         <file>close.png</file>
         <file>favicon.ico</file>
+         <file>g.png</file>
     </qresource>
 </RCC>

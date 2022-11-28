@@ -5,6 +5,7 @@
 #include <json/value.h>
 #include <json/writer.h>
 #include <memory>
+#include <qabstractsocket.h>
 #include <qtimer.h>
 #include <qtmetamacros.h>
 #include <qurl.h>
@@ -20,7 +21,7 @@ ClientWebsoc::ClientWebsoc(PrintMsgStation &printmsgstation)
   _print_msg_station._set_websoc_url = f;
 
   _print_msg_station._get_websoc_state = [this]() {
-    return this->_webSoc.state() == 1;
+    return this->_webSoc.state() == QAbstractSocket::ConnectedState;
   };
   _webSoc.ignoreSslErrors();
   connect(&_webSoc, &QWebSocket::connected, this, &ClientWebsoc::slotOnConnect);
@@ -34,8 +35,7 @@ ClientWebsoc::ClientWebsoc(PrintMsgStation &printmsgstation)
   connect(&_timer, &QTimer::timeout, this, &ClientWebsoc::slotTimerReConnect);
   connect(this, &ClientWebsoc::signalsetWebSocUrl,this,&ClientWebsoc::slotOpenUrl, Qt::QueuedConnection);
 
-  auto [is_connected,url] = _print_msg_station.getWebsocketUrAndState();
-  this->openUrl(QUrl(url.c_str()));
+  this->openUrl(QUrl(_print_msg_station.getWebsocketUrl().c_str()));
 }
 
 void ClientWebsoc::openUrl(const QUrl &url) {

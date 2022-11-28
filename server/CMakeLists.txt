@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 
 project(PrintWebPage LANGUAGES CXX)
 
@@ -42,6 +42,7 @@ add_executable(PrintWebPage
   gui/printwidget.cpp
   gui/printwidget.h
   gui/printwidget.ui
+  gui/app_win32.rc
 )
 target_link_libraries(PrintWebPage
     Qt${QT_VERSION_MAJOR}::Core

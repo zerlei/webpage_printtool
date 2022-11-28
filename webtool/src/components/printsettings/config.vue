@@ -144,7 +144,7 @@ onMounted(async () => {
 
     let res2 = await ServerNet.send({ MsgType: "GetWebsocketUrl" })
     if(res2.IsSuccess) {
-        _webSocketUrl.value = res2.Result
+        _webSocketUrl.value = res2.Result.WebSocUrl
     }
 })
 

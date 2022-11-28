@@ -92,15 +92,11 @@ function recureGetCurrentAnchor() {
             if (anchorNode.nodeName == 'DIV' && anchorNode.children.length > 0) {
 
                 if (anchorNode.firstChild == null && isDown) {
-                    console.log(anchorNode)
-                    console.log(PosinfoStr)
-                    console.log("firstChild")
+
                     return
                 }
                 if (anchorNode.lastChild == null && isDown) {
-                    console.log(anchorNode)
-                    console.log(PosinfoStr)
-                    console.log("lastChild")
+
                     return
                 }
                 if (isDown) {
@@ -134,15 +130,10 @@ function recureGetCurrentAnchor() {
     if (anchorNode.parentNode) {
         if (anchorNode.parentNode.nextSibling == null && isDown) {
 
-            console.log(anchorNode)
-            console.log(PosinfoStr)
-            console.log("nextSibling")
             return
         }
         if (anchorNode.parentNode.previousSibling == null && !isDown) {
-            console.log(anchorNode)
-            console.log(PosinfoStr)
-            console.log("previousSibling")
+
             return
         }
         if (isDown) {

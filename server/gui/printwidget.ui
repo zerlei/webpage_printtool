@@ -217,8 +217,13 @@ border-image: url(:/bg/close.png);
             <height>100</height>
            </size>
           </property>
+          <property name="styleSheet">
+           <string notr="true">
+image: url(:/bg/g.png);
+padding:10px</string>
+          </property>
           <property name="text">
-           <string>观</string>
+           <string/>
           </property>
          </widget>
         </item>

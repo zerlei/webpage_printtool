@@ -64,9 +64,14 @@ const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
                                       jsob["Data"]["Page"].asInt());
 
     } else if (msg_str == "GetWebsocketUrl") {
-      auto [IsConnected, WebSocUrl] = getWebsocketUrAndState();
-      resp["Result"]["IsConnected"] = IsConnected;
-      resp["Result"]["WebSocUrl"] = WebSocUrl;
+
+      auto is_connected = false;
+      if (_get_websoc_state) {
+        is_connected = _get_websoc_state();
+      }
+      resp["Result"]["IsConnected"] = is_connected;
+      resp["Result"]["WebSocUrl"] = getWebsocketUrl();
+      ;
 
     } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
       resp["IsSuccess"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
@@ -152,9 +157,13 @@ void PrintMsgStation::workWithJsonAsync(
       callback(resp);
 
     } else if (msg_str == "GetWebsocketUrl") {
-      auto [IsConnected, WebSocUrl] = getWebsocketUrAndState();
-      resp["Result"]["IsConnected"] = IsConnected;
-      resp["Result"]["WebSocUrl"] = WebSocUrl;
+      auto is_connected = false;
+      if (_get_websoc_state) {
+        is_connected = _get_websoc_state();
+      }
+      resp["Result"]["IsConnected"] = is_connected;
+      resp["Result"]["WebSocUrl"] = getWebsocketUrl();
+      ;
 
       callback(resp);
 
@@ -363,21 +372,17 @@ const Json::Value PrintMsgStation::getScreenInfo() {
   }
   return v;
 }
-std::tuple<bool, std::string> PrintMsgStation::getWebsocketUrAndState() {
-
-  auto is_connected = false;
-  if (_get_websoc_state) {
-    is_connected = _get_websoc_state();
-  }
-  return std::make_tuple(is_connected, _db.getWebsocketUrl());
-}
+std::string PrintMsgStation::getWebsocketUrl() { return _db.getWebsocketUrl(); }
 bool PrintMsgStation::insertOrUpdateWebsocketUrl(
     const std::string &websoc_url_) {
 
-  if (_set_websoc_url) {
-    _set_websoc_url(websoc_url_);
+  auto IsSuceess = _db.insertOrUpdateWebsocketUrl(websoc_url_);
+  if (IsSuceess) {
+    if (_set_websoc_url) {
+      _set_websoc_url(websoc_url_);
+    }
   }
-  return _db.insertOrUpdateWebsocketUrl(websoc_url_);
+  return IsSuceess;
 }
 
 void PrintMsgStation::setClientWebSockState(bool is_) {

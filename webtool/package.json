@@ -9,14 +9,10 @@
   },
   "dependencies": {
     "github-markdown-css": "^5.1.0",
-    "highlight.js": "^11.6.0",
-    "highlightjs": "^9.16.2",
-    "markdown-it": "^13.0.1",
-    "markdown-it-mermaid": "^0.2.0",
-    "markdown-it-plantuml": "^1.4.1",
-    "mermaid": "^8.4.3",
+    "highlight.js": "^11.7.0",
+    "markdown-it": "^12.3.2",
+    "mermaid": "^9.2.2",
     "naive-ui": "^2.33.4",
-    "viz.js": "^2.1.2",
     "vue": "^3.2.25",
     "vue-router": "^4.0.15"
   },

@@ -46,7 +46,6 @@ class Websoc {
             this.#newMsg(event.data)
         }
         this.#websocket.onclose = event => {
-            console.log("onClose!")
             this.#webSocOnClose(event)
         }
         this.#websocket.onerror = e => {

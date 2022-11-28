@@ -96,15 +96,10 @@ const menuOptions = ref([
   background-color: #0d1117;
   max-height: 100vh;
 }
-
 .markdown-body p {
-  font-family: "颜宋简体";
+  font-family: cursive;
+  font-size: 19px;
 }
-
-.markdown-body li {
-  font-family: "楷体";
-}
-
 .markdown-body pre {
   /* max-height: 1000px; */
   scroll-behavior: auto;
@@ -127,7 +122,7 @@ const menuOptions = ref([
 }
 
 .markdown-body blockquote p {
-  font-family: "柳公权楷体";
+
   background-color: rgb(40, 40, 40);
   border-radius: 5px;
   padding-left: 1%;
