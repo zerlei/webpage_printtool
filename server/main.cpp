@@ -1,8 +1,10 @@
 
+#include "./gui/printwidget.h"
 #include "./net_interface/clientwebsocket.h"
 #include "./net_interface/printcontroller.h"
 #include "./net_interface/printwebsocket.h"
 #include "./printer/printmsgstation.h"
+#include "gui/printwidget.h"
 #include <QApplication>
 #include <QDebug>
 #include <QPushButton>
@@ -12,8 +14,7 @@
 #include <memory>
 #include <qapplication.h>
 #include <thread>
-#include "./gui/printwidget.h"
-#include "gui/printwidget.h"
+
 
 using namespace drogon;
 
@@ -22,8 +23,10 @@ int main(int argc, char *argv[]) {
   QApplication a(argc, argv);
 
   PrintWidget w;
+
   w.show();
-  auto dr =  QApplication::applicationDirPath()+"/wwwroot/";
+  w.setWindowState((w.windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+  auto dr = QApplication::applicationDirPath() + "/wwwroot/";
   std::string docoment_root = dr.toStdString();
   if (argc <= 1) {
     // return 0;

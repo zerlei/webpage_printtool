@@ -3,7 +3,6 @@ import {
     NIcon,
     NSpace,
     NTooltip,
-    NGradientText,
     NDataTable
 
 } from 'naive-ui'

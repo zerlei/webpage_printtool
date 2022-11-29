@@ -1,5 +1,0 @@
-GET http://127.0.0.1:8847/PrintController/getprintinfo?isUpdate=false HTTP/1.1
-
-
-###
-GET http://127.0.0.1:8847/PrintController/test HTTP/1.1
