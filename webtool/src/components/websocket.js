@@ -34,7 +34,7 @@ class Websoc {
             }
         }, 120000)
 
-        this.#websocket = new WebSocket('ws://127.0.0.1:8847')
+        this.#websocket = new WebSocket(`ws://${window.location.host}`)
         this.#websocket.onopen = event => {
             console.warn("websocket connected!")
             while (this.#senderTem.length > 0) {
@@ -147,7 +147,7 @@ class Websoc {
             return
         }
         this.#websocket.close()
-        this.#websocket = new WebSocket('ws://127.0.0.1:8847')
+        this.#websocket = new WebSocket(`ws://${window.location.host}`)
         this.#websocket.onopen = e1_ => {
             console.warn("websocket connected!")
             while (this.#senderTem.length > 0) {
