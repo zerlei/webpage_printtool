@@ -94,7 +94,6 @@ class Websoc {
     }
     send(msg) {
         msg.Id = this.#getId()
-        console.log(msg)
         return new Promise(resolve => {
             this.#sender.push({
                 id: msg.Id,

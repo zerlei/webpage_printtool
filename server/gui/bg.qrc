@@ -3,6 +3,7 @@
         <file>bg.jpeg</file>
         <file>close.png</file>
         <file>favicon.ico</file>
-         <file>g.png</file>
+        <file>g.png</file>
+        <file>exit.png</file>
     </qresource>
 </RCC>

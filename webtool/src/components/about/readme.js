@@ -47,7 +47,7 @@ flowchart LR
 
 **网页打印工具**提供三种接口方式 httpPost、websocket 客户端和websocket服务端，它们信息的数据格式都是一致的。
 
-#### $1.1.1 获得 **网页打印工具**宿主电脑上的打印机和纸张信息
+#### $1.1.1 获得网页打印工具宿主电脑上的打印机和纸张信息
 
 *请求：*
 \`\`\`json
@@ -364,7 +364,7 @@ fetch("http://127.0.0.1:8847/PrintController/Print", {//Your webprinttool url
 
 1. 安装包会自动安装在 C:\\Program Files\\PrintWebPage中，并添加一个注册表项在HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Run 中，名字是：PrintWebPage，用于开机启动。
 2. 如果程序不能启动，你可以安装最新的vc++ 发布包试一下（这个电脑好久没升级了。。。）
-3. 软件没有关闭功能，你可以在任务管理器中关闭。卸载的话，直接在目录里删除就可以了，注册表项在上述位置删除。
+3. 卸载的话，直接在目录里删除就可以了，注册表项在上述位置删除。
 4. qt是支持跨平台的，这个在mac、或linux中应该也可以用，你可以自己编译，包含32位程序也是如此。
 
 ## $4 另外。。。
