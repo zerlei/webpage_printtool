@@ -107,7 +107,6 @@ void WebPrinter::slotLoadFinishTorint(bool isSuccess) {
     }
 
   } else {
-      //TODO 测试
     std::get<3>(_currentpage)(false, QString("页面加载失败！"));
     _render_view.stop();
     _timeout_listen.stop();

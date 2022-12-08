@@ -22,7 +22,7 @@ struct PrinterConfig {
       TopMargin = config_["TopMargin"].asInt();
       BottomMargin = config_["BottomMargin"].asInt();
       LeftMargin = config_["LeftMargin"].asInt();
-      RightMargin = config_["LeftMargin"].asInt();
+      RightMargin = config_["RightMargin"].asInt();
       _is_correct = true;
     } catch (Json::Exception v) {
       std::cout << v.what();

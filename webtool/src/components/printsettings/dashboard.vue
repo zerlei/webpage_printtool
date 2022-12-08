@@ -64,7 +64,11 @@ onMounted(async () => {
         _server_websoc_connected_.value = data.WebsocConnected
         _websoc_url.value = data.WebSocUrl
     }
-    
+    )
+        
+    ServerNet.listen("dashboard","PrintPageChanged",(data)=>{
+        getPrintedPage(pagination.value.page)
+    }
     )
 })
 

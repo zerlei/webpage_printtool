@@ -167,7 +167,7 @@ function acceptNext() {
         ob.BottomMargin = Margin.value.Bottom
         ob.LeftMargin = Margin.value.Left
         ob.RightMargin = Margin.value.Right
-        ob.Orientation = Orientation ? "横向" : "纵向"
+        ob.Orientation = Orientation.value ? "横向" : "纵向"
         ob.PrinterName = PrinterChecked.value[0]
         ob.PaperName = PaperData.value.find(e => {
             if (e.Id == PaperChecked.value[0]) {
