@@ -11,7 +11,7 @@
 #include <string>
 #include <time.h>
 #include <tuple>
-
+using namespace std::literals;
 PrintMsgStation::PrintMsgStation() {}
 
 const Json::Value PrintMsgStation::workWithString(std::string &str_) {
@@ -282,7 +282,7 @@ void PrintMsgStation::toPrint(
     PrintedPage page;
     page.IsSuccess = IsSuccess;
     page.PrintTime =
-        std::format("{0:%F} {0:%T}", std::chrono::system_clock::now());
+        std::format("{0:%F} {0:%T}", std::chrono::system_clock::now()+8h);
     page.FromIp = ipinfo_;
     page.FromType = from_type_;
     page.PageName = (*list)[*i]["PageUrl"].asString();
