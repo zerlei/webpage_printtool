@@ -107,8 +107,11 @@ void WebPrinter::slotLoadFinishTorint(bool isSuccess) {
     }
 
   } else {
-      //BUG TODO 缺少结束
+      //TODO 测试
     std::get<3>(_currentpage)(false, QString("页面加载失败！"));
+    _render_view.stop();
+    _timeout_listen.stop();
+    toPrint();
   }
 }
 
@@ -123,6 +126,7 @@ void WebPrinter::slotPrintRequestTimeOut() {
   ///
   ///可能是用户传递的页面存在问题
   std::get<3>(_currentpage)(false, QString("超时，打印失败！"));
+  _render_view.stop();
   toPrint();
 }
 
