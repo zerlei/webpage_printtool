@@ -30,8 +30,8 @@ function closeAnchor() {
 onMounted(() => {
     menu_ob = document.getElementById("blog_anchor_menu")
     menu_ob.addEventListener('click', (e) => {
-        emit('anchorDo', e.path[0].id.replace(/a/,'b'))
-        changeDivClass(e.path[0])
+        emit('anchorDo', e.target.id.replace(/a/,'b'))
+        changeDivClass( e.target)
     }, true)
 })
 

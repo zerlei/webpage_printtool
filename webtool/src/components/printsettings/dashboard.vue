@@ -20,12 +20,14 @@ const columns = [
     { title: "请求类型", key: "FromType" },
     { title: "打印机配置名称", key: "ConfigName" },
     { title: "打印模式", key: "PrintMode" },
-    { title: "是否成功", key: "IsSuccess",render(row) {
-        if(row.IsSuccess) {
-            return "😀成功"
+    {
+        title: "是否成功", key: "IsSuccess", render(row) {
+            if (row.IsSuccess) {
+                return "😀成功"
+            }
+            return "🤪失败"
         }
-        return "🤪失败"
-    } }
+    }
 ]
 const loading = ref(true)
 const pagination = ref({
@@ -33,7 +35,18 @@ const pagination = ref({
     pageSize: 20,
     pageCount: 1,
     prefix({ itemCount }) {
-        return `共计: ${itemCount}`
+        return [
+            h(
+                "DIV",
+                {
+                    style: {
+                        color: 'white'
+                    }
+                },
+                { default: () => `共计: ${itemCount}` }
+            )
+
+        ]
     }
 })
 
@@ -45,28 +58,28 @@ function pageChanged(currentPage) {
 }
 async function getPrintedPage(currentPage) {
     let res = await ServerNet.send({ MsgType: "GetPrintedPages", Data: { Size: 20, Page: currentPage } })
-    tableData.value = res.Result.Rows == null?[]: res.Result.Rows
+    tableData.value = res.Result.Rows == null ? [] : res.Result.Rows
 
     pagination.value.page = currentPage
-    pagination.value.pageCount =  (res.Result.Count/20).toFixed(0)+1
+    pagination.value.pageCount = (res.Result.Count / 20).toFixed(0) + 1
     pagination.value.itemCount = res.Result.Count
     loading.value = false
 }
 onMounted(async () => {
     getPrintedPage(1)
 
-    let res =  await ServerNet.send({ MsgType: "GetWebsocketUrl"})
-    if(res.IsSuccess) {
+    let res = await ServerNet.send({ MsgType: "GetWebsocketUrl" })
+    if (res.IsSuccess) {
         _server_websoc_connected_.value = res.Result.IsConnected
         _websoc_url.value = res.Result.WebSocUrl
     }
-    ServerNet.listen("dashboard","WebSocState",(data)=>{
+    ServerNet.listen("dashboard", "WebSocState", (data) => {
         _server_websoc_connected_.value = data.WebsocConnected
         _websoc_url.value = data.WebSocUrl
     }
     )
-        
-    ServerNet.listen("dashboard","PrintPageChanged",(data)=>{
+
+    ServerNet.listen("dashboard", "PrintPageChanged", (data) => {
         getPrintedPage(pagination.value.page)
     }
     )
