@@ -352,9 +352,6 @@ PrintMode：它决定什么时候打印这个页面。它有两个可选值： L
 }
 \`\`\`
 
-
-
-核心功能部分、websocket客户端、及gui使用qt开发；http服务使用[drogon](https:drogon.org/); 一个可选的前端工具使用vue 和 [naive-ui](https:www.naiveui.com/)开发。
  
 ## $2 源码和编译
 
