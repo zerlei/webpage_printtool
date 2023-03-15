@@ -75,6 +75,7 @@ void WebPrinter::toPrint() {
           }
           if (!ishasIn) {
             _current_print = new QPrinter(x, QPrinter::HighResolution);
+            _current_print.setResolution(4000);
             _printers.push_back(_current_print);
           }
           _current_print->setPageLayout(pagelayout);
