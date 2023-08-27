@@ -14,76 +14,6 @@
 using namespace std::literals;
 PrintMsgStation::PrintMsgStation() {}
 
-const Json::Value PrintMsgStation::workWithString(std::string &str_) {
-  try {
-    Json::Value jsob;
-    Json::Reader reader;
-    if (reader.parse(str_, jsob)) {
-
-      return workWithJson(jsob);
-
-    } else {
-      throw 1;
-    }
-
-  } catch (...) {
-    Json::Value resp;
-    resp["IsSuccess"] = false;
-    return resp;
-  }
-}
-const Json::Value PrintMsgStation::workWithJson(Json::Value &jsob) {
-
-  try {
-    auto msgtype = jsob["MsgType"];
-    if (!msgtype.isString()) {
-      throw 1;
-    }
-    auto msg_str = msgtype.asString();
-    Json::Value resp;
-    resp["Id"] = jsob["Id"];
-    resp["IsSuccess"] = true;
-    if (msg_str == "GetPrintInfo") {
-      resp["Result"] = getPrintInfo(true);
-
-    } else if (msg_str == "AddOnePrintConfig") {
-      resp["Result"] = addOnePrintConfig(jsob["Data"]);
-
-    } else if (msg_str == "DelOnePrintConfig") {
-      resp["Result"] = delOnePrintConfig(jsob["Data"].asInt());
-    } else if (msg_str == "UpdateOnePrintConfig") {
-      resp["Result"] = updateOnePrintConfig(jsob["Data"]);
-    } else if (msg_str == "GetPrintConfigs") {
-      resp["Result"] = getPrintConfigs();
-
-    } else if (msg_str == "ToPrint") {
-      throw 1;
-
-    } else if (msg_str == "GetPrintedPages") {
-      resp["Result"] = getPrintedPage(jsob["Data"]["Size"].asInt(),
-                                      jsob["Data"]["Page"].asInt());
-
-    } else if (msg_str == "GetWebsocketUrl") {
-
-      auto is_connected = false;
-      if (_get_websoc_state) {
-        is_connected = _get_websoc_state();
-      }
-      resp["Result"]["IsConnected"] = is_connected;
-      resp["Result"]["WebSocUrl"] = getWebsocketUrl();
-      ;
-
-    } else if (msg_str == "InsertOrUpdateWebsocketUrl") {
-      resp["IsSuccess"] = insertOrUpdateWebsocketUrl(jsob["Data"].asString());
-    }
-    return resp;
-
-  } catch (...) {
-    Json::Value resp;
-    resp["IsSuccess"] = false;
-    return resp;
-  }
-}
 void PrintMsgStation::workWithStringAsync(
     std::string str_, std::string &ipinfo, std::string &from_type,
     std::function<void(const Json::Value &)> callback) {
@@ -248,8 +178,8 @@ const Json::Value PrintMsgStation::updateOnePrintConfig(Json::Value &json) {
 const Json::Value PrintMsgStation::getPrintConfigs() {
   Json::Value vs;
   auto v = _db.printerConfigQueryById();
-  for (PrinterConfig &x : _db.printerConfigQueryById()) {
-    vs.append(x.getReflectionJson());
+  for (PrinterConfigPtr x : _db.printerConfigQueryById()) {
+    vs.append(x->getReflectionJson());
   }
   return vs;
 }
@@ -270,79 +200,57 @@ void PrintMsgStation::toPrint(
     callback(v);
     return;
   }
-  auto i = std::make_shared<int>();
-  *i = 0;
+
   auto respValue = std::make_shared<Json::Value>();
-  auto f = [callback, size, i, respValue, list, ipinfo_, from_type_,
-            this](bool IsSuccess, const QString &Message) {
-    Json::Value subValue;
-    subValue["IsSuccess"] = IsSuccess;
-    subValue["Message"] = Message.toStdString();
-    respValue->append(subValue);
-    PrintedPage page;
-    page.IsSuccess = IsSuccess;
-    page.PrintTime =
-        std::format("{0:%F} {0:%T}", std::chrono::system_clock::now()+8h);
-    page.FromIp = ipinfo_;
-    page.FromType = from_type_;
-    page.PageName = (*list)[*i]["PageUrl"].asString();
-    page.ConfigName = (*list)[*i]["ConfigName"].asString();
-    page.PrintMode = (*list)[*i]["PrintMode"].asString();
-    _db.printedPageInsert(page);
-    if (this->_websoc_msg_push) {
-      Json::Value v;
-      v["MsgType"] = "PrintPageChanged";
-      _websoc_msg_push(v);
-    }
 
-    *i = *i + 1;
-    if (*i == size) {
-      callback(*respValue);
-    }
-  };
-
-  for (auto &x : *list) {
-
+  for (int j = 0; j < size; ++j) {
     try {
-      const auto url = QString::fromStdString(x["PageUrl"].asString());
-      auto mode = x["PrintMode"].asString() == "LoadAchieve"
-                      ? PrintModel::LoadAchieve
-                      : PrintModel::JsPrintRequest;
+      auto &x = (*list)[j];
+      auto mode = x["PrintMode"].asString();
       auto Name = x["ConfigName"].asString();
-
+      auto pageName = x["PageUrl"].asString();
       auto printer_config =
-          _db.printerConfigQueryByName(QString::fromStdString(Name));
+          _db.printerConfigQueryByName(QString::fromStdString(Name))[0];
 
-      if (printer_config.empty()) {
-        f(false, "找不到对应的打印机配置~");
-      } else {
-        auto PrinterInfoName =
-            QString::fromStdString(printer_config[0].PrinterName);
+      auto printerPage = std::make_shared<PrintedPage>();
+      printerPage->PageName = pageName;
+      printerPage->FromIp = ipinfo_;
+      printerPage->FromType = from_type_;
+      printerPage->PrintMode = mode;
+      printerPage->ConfigName = Name;
 
-        auto PageName = QString::fromStdString(printer_config[0].PaperName);
+      auto callBackF = [j, printerPage, callback, this, respValue,
+                        size](bool IsSuccess, const QString &Message) {
+        printerPage->IsSuccess = IsSuccess;
 
-        auto TopMargin = printer_config[0].TopMargin;
-        auto BottomMargin = printer_config[0].BottomMargin;
-        auto LeftMargin = printer_config[0].LeftMargin;
-        auto RightMargin = printer_config[0].RightMargin;
-
-        QMarginsF margins(LeftMargin, TopMargin, RightMargin, BottomMargin);
-
-        QPageLayout::Orientation Orientation_;
-
-        auto Orientation = printer_config[0].Orientation;
-        if (Orientation == "横向") {
-          Orientation_ = QPageLayout::Portrait;
-        } else {
-          Orientation_ = QPageLayout::Landscape;
+        Json::Value subValue;
+        subValue["IsSuccess"] = IsSuccess;
+        subValue["Message"] = Message.toStdString();
+        respValue->append(subValue);
+        // 使用的是北京时间
+        printerPage->PrintTime =
+            std::format("{0:%F} {0:%T}", std::chrono::system_clock::now() + 8h);
+        _db.printedPageInsert(*printerPage);
+        if (this->_websoc_msg_push) {
+          Json::Value v;
+          v["MsgType"] = "PrintPageChanged";
+          _websoc_msg_push(v);
         }
+        if (j == size - 1) {
+          callback(*respValue);
+        }
+      };
 
-        _print.addPrintWebPageToQueue(printer_config[0]);
-        emit _print.signalGuiThreadToWork();
-      }
-
+      _print.addPrintWebPageToQueue(
+          std::make_tuple(printer_config, printerPage, callBackF));
+      emit _print.signalGuiThreadToWork();
     } catch (...) {
-      f(false, "不合格的数据格式！");
+      Json::Value errValue;
+      errValue["IsSuccess"] = false;
+      errValue["Message"] = "错误的数据格式";
+      respValue->append(errValue);
+      callback(*respValue);
+      return;
     }
   }
 }

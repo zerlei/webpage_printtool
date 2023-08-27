@@ -112,8 +112,6 @@ private:
 
   QPdfDocument *_pdf_documnet;
 
-  QByteArray  _pdf_c_data;
-
 private slots:
   ///
   /// \brief 网页加载完毕打印
@@ -130,11 +128,6 @@ private slots:
 
   void slotPrintRequestTimeOut();
 
-  ///
-  /// \brief 打印结束调用函数
-  ///
-
-  void slotPrintFinshed(bool);
 
   /// 移动到GUI线程开启打印工作
   /// \brief SlotMoveToGUIThreadWork

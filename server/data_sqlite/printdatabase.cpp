@@ -48,8 +48,7 @@ PrintDatabase::printerConfigInsert(const PrinterConfig &pc) {
                                   PaperName,
                                   SaveType,
                                   PaperWidthInmm,
-                                  PaperHeightInmm,
-
+                                  PaperHeightInmm
                               )
                               VALUES (
                               '{}',
@@ -67,7 +66,7 @@ PrintDatabase::printerConfigInsert(const PrinterConfig &pc) {
             )",
         pc.Name, pc.PrinterName, pc.TopMargin, pc.BottomMargin, pc.LeftMargin,
         pc.RightMargin, pc.Orientation, pc.PaperName, pc.SaveType,
-        pc.PaperHeightInmm, pc.PaperHeightInmm);
+        pc.PaperWidthInmm, pc.PaperHeightInmm);
     qDebug() << QString::fromStdString(insert_sql);
     if (_query->exec(QString::fromStdString(insert_sql))) {
       return std::make_tuple(true, "");
