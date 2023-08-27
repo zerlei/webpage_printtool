@@ -337,8 +337,7 @@ void PrintMsgStation::toPrint(
           Orientation_ = QPageLayout::Landscape;
         }
 
-        _print.addPrintWebPageToQueue(QUrl(url), PrinterInfoName, mode,
-                                      PageName, margins, Orientation_, f);
+        _print.addPrintWebPageToQueue(printer_config[0]);
         emit _print.signalGuiThreadToWork();
       }
 

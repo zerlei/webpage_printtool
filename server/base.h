@@ -6,6 +6,7 @@
 #include <json/value.h>
 #include <qsqldatabase.h>
 #include <qsqlquery.h>
+#include <memory>
 #include <string>
 
 struct PrinterConfig {
@@ -23,6 +24,9 @@ struct PrinterConfig {
       BottomMargin = config_["BottomMargin"].asInt();
       LeftMargin = config_["LeftMargin"].asInt();
       RightMargin = config_["RightMargin"].asInt();
+      SaveType = config_["SaveType"].asString();
+      PaperWidthInmm = config_["PaperWidthInmm"].asInt();
+      PaperHeightInmm = config_["PaperHeightInmm"].asInt();
       _is_correct = true;
     } catch (Json::Exception v) {
       std::cout << v.what();
@@ -40,6 +44,9 @@ struct PrinterConfig {
       Orientation = query_->value(6).toString().toStdString();
       PaperName = query_->value(7).toString().toStdString();
       PrinterName = query_->value(8).toString().toStdString();
+      SaveType = query_->value(9).toString().toStdString();
+      PaperWidthInmm = query_->value(10).toInt();
+      PaperHeightInmm = query_->value(11).toInt();
       _is_correct = true;
     } catch (...) {
     }
@@ -56,11 +63,30 @@ struct PrinterConfig {
     config["PaperName"] = PaperName;
     config["PrinterName"] = PrinterName;
     config["Orientation"] = Orientation;
+    config["SaveType"] = SaveType;
+    config["PaperWidthInmm"] = PaperWidthInmm;
+    config["PaperHeightInmm"] = PaperHeightInmm;
     return config;
   }
   bool _is_correct{false};
+  /**
+   * @brief Id
+   * 
+   */
   int Id{0};
+  /**
+   * @brief 打印机名称
+   * 
+   */
   std::string Name;
+  /**
+   * @brief bit 位 从左至右 是否保存pdf | 是否保存 png 图片 | 是否打印 | 是否使用打印机配置
+   * 
+   */
+  std::string SaveType;
+
+  int PaperWidthInmm;
+  int PaperHeightInmm;
   int TopMargin;
   int BottomMargin;
   int LeftMargin;
@@ -126,4 +152,6 @@ struct PrintedPage {
   std::string PrintMode;
   bool IsSuccess;
 };
+using PrinterConfigPtr = std::shared_ptr<PrinterConfig>;
+using PrintedPagePtr = std::shared_ptr<PrintedPage>;
 #endif // PrintDatabase_H

@@ -1,5 +1,6 @@
 #ifndef WEBPRINTER_H
 #define WEBPRINTER_H
+#include "base.h"
 #include <QList>
 #include <QObject>
 #include <QPrinter>
@@ -8,13 +9,19 @@
 #include <QWebEngineView>
 #include <functional>
 #include <memory>
+#include <qbuffer.h>
 #include <queue>
 #include <tuple>
+#include <qpdfdocument.h>
+#include <QBuffer>
 enum class PrintModel { LoadAchieve, JsPrintRequest };
 enum class PrintState { IsWorking, IsWaiting };
 using WebPagePrintInfo = std::tuple<QUrl, QString, PrintModel, QString,
                                     QMarginsF, QPageLayout::Orientation,
                                     std::function<void(bool, const QString &)>>;
+
+
+
 class WebPrinter : public QObject {
   Q_OBJECT
 public:
@@ -31,10 +38,9 @@ public:
   /// \param model
   ///
   void
-  addPrintWebPageToQueue(const QUrl &url, const QString &printerInfoName,
-                         PrintModel model, const QString &PageName,
-                         const QMarginsF &marginsF, QPageLayout::Orientation,
-                         std::function<void(bool, const QString &)> callback);
+  addPrintWebPageToQueue(std::tuple<PrinterConfigPtr, PrintedPagePtr,
+                                    std::function<void(bool, const QString &)>>
+                             printInfo);
   /// 获取当前的打印机信息
   /// \brief GetAvaliablePrinterInfo
   /// \return
@@ -51,10 +57,13 @@ public:
   void startWork();
 
 private:
-  ///
-  /// \brief WebPageList
-  ///
-  std::queue<WebPagePrintInfo> _webpagelist;
+  std::queue<std::tuple<PrinterConfigPtr, PrintedPagePtr,
+                        std::function<void(bool, const QString &)>>>
+      _s_print_task;
+
+  std::tuple<PrinterConfigPtr, PrintedPagePtr,
+             std::function<void(bool, const QString &)>>
+      _current_task;
 
   ///
   /// \brief 当前打印的网页
@@ -97,6 +106,13 @@ private:
   /// \brief 打印当前网页
   ///
   void toPrint();
+
+
+  std::function<void(const QByteArray &)> printToPdfResult;
+
+  QPdfDocument *_pdf_documnet;
+
+  QByteArray  _pdf_c_data;
 
 private slots:
   ///
