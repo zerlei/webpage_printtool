@@ -1,1 +1,10 @@
-{"Id":"ToPrint","IsSuccess":true,"Result":[{"IsSuccess":true,"Message":""}]}
+{
+    "Id": "ToPrint",
+    "IsSuccess": true,
+    "Result": [
+        {
+            "IsSuccess": true,
+            "Message": ""
+        }
+    ]
+}

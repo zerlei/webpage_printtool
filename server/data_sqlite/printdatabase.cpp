@@ -10,7 +10,6 @@
 #include <tuple>
 #include <vector>
 
-
 PrintDatabase::PrintDatabase() {
   _db = QSqlDatabase::addDatabase("QSQLITE");
   _db.setDatabaseName(QCoreApplication::applicationDirPath() +
@@ -46,7 +45,10 @@ PrintDatabase::printerConfigInsert(const PrinterConfig &pc) {
                                   LeftMargin,
                                   RightMargin,
                                   Orientation,
-                                  PaperName
+                                  PaperName,
+                                  SaveType,
+                                  PaperWidthInmm,
+                                  PaperHeightInmm
                               )
                               VALUES (
                               '{}',
@@ -56,11 +58,15 @@ PrintDatabase::printerConfigInsert(const PrinterConfig &pc) {
                                {},
                                {},
                               '{}',
-                              '{}'
+                              '{}',
+                              '{}',
+                               {},
+                               {}
                               );
             )",
         pc.Name, pc.PrinterName, pc.TopMargin, pc.BottomMargin, pc.LeftMargin,
-        pc.RightMargin, pc.Orientation, pc.PaperName);
+        pc.RightMargin, pc.Orientation, pc.PaperName, pc.SaveType,
+        pc.PaperWidthInmm, pc.PaperHeightInmm);
     qDebug() << QString::fromStdString(insert_sql);
     if (_query->exec(QString::fromStdString(insert_sql))) {
       return std::make_tuple(true, "");
@@ -100,11 +106,15 @@ PrintDatabase::printerConfigUpdate(const PrinterConfig &pc) {
                        TopMargin = {},
                        BottomMargin = {},
                        LeftMargin = {},
-                       RightMargin = {}
+                       RightMargin = {},
+                       SaveType = '{}',
+                       PaperWidthInmm = {},
+                       PaperHeightInmm = {},
                        where Id = {})",
                                   pc.Name, pc.PrinterName, pc.PaperName,
                                   pc.Orientation, pc.TopMargin, pc.BottomMargin,
-                                  pc.LeftMargin, pc.RightMargin, pc.Id);
+                                  pc.LeftMargin, pc.RightMargin, pc.SaveType,
+                                  pc.PaperWidthInmm, pc.PaperHeightInmm, pc.Id);
     if (_query->exec(QString::fromStdString(update_sql))) {
       return std::make_tuple(true, "");
     } else {
@@ -116,22 +126,22 @@ PrintDatabase::printerConfigUpdate(const PrinterConfig &pc) {
   }
 }
 
-std::vector<PrinterConfig> PrintDatabase::printerConfigQueryById(int Id) {
-  std::vector<PrinterConfig> pcs;
+std::vector<PrinterConfigPtr> PrintDatabase::printerConfigQueryById(int Id) {
+  std::vector<PrinterConfigPtr> pcs;
   try {
     QString querySql;
     if (Id == -1) { // 查询全部
       querySql = QString(R"(SELECT * FROM printer_config)");
       if (_query->exec(querySql)) {
         while (_query->next()) {
-          pcs.push_back(PrinterConfig(_query.get()));
+          pcs.push_back( std::make_shared<PrinterConfig>(_query.get()));
         }
       }
     } else {
       querySql = QString(R"(SELECT * FROM printer_config where Id=%1)").arg(Id);
       if (_query->exec(querySql)) {
         while (_query->next()) {
-          pcs.push_back(PrinterConfig(_query.get()));
+          pcs.push_back( std::make_shared<PrinterConfig>(_query.get()));
         }
       }
     }
@@ -141,15 +151,15 @@ std::vector<PrinterConfig> PrintDatabase::printerConfigQueryById(int Id) {
   }
 }
 
-std::vector<PrinterConfig>
+std::vector<PrinterConfigPtr>
 PrintDatabase::printerConfigQueryByName(const QString &Name) {
-  std::vector<PrinterConfig> pcs;
+  std::vector<PrinterConfigPtr> pcs;
   try {
     QString querySql =
         QString(R"(SELECT * FROM printer_config where Name='%1')").arg(Name);
     if (_query->exec(querySql)) {
       while (_query->next()) {
-        pcs.push_back(PrinterConfig(_query.get()));
+        pcs.push_back(std::make_shared<PrinterConfig>(_query.get()));
       }
     }
     return pcs;
@@ -238,7 +248,8 @@ bool PrintDatabase::insertOrUpdateWebsocketUrl(const std::string &websoc_url_) {
       }
     }
     auto query_sql = std::format(
-        "insert into remote_websocket_url(WebsocketUrl) values('{}')", websoc_url_);
+        "insert into remote_websocket_url(WebsocketUrl) values('{}')",
+        websoc_url_);
 
     _query->exec(query_sql.c_str());
     return true;

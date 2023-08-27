@@ -1,47 +1,8 @@
 <script setup>
 
-import { ref, h } from 'vue'
-import { darkTheme, NMenu, NScrollbar, NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
-import { RouterLink } from 'vue-router'
+import { darkTheme, NScrollbar, NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui'
 
-
-const currentSelect = ref("setting")
-const menuOptions = ref([
-  {
-    label: () =>
-      h(
-        RouterLink,
-        {
-          to: {
-            name: "setting",
-            params: {
-              lang: 'zh-CN'
-            }
-          }
-        }
-        , { default: () => '配置' }
-      ),
-    key: "setting",
-  },
-  {
-    label: () =>
-
-      h(
-        RouterLink,
-        {
-          to: {
-            name: "about"
-
-          },
-          params: {
-            lang: 'zh-CN'
-          }
-        },
-        { default: () => '关于' }
-      ),
-    key: "about"
-  }
-])
+import Settings from './components/printsettings/settings.vue'
 
 </script>
 
@@ -49,32 +10,14 @@ const menuOptions = ref([
   <NConfigProvider :theme="darkTheme">
     <NMessageProvider>
       <NDialogProvider>
-
         <div id="container">
-
-          <div id="leftmenu">
-            <!-- <div style="height: 10px;">
-
-            </div> -->
-            <NConfigProvider :theme="darkTheme">
-              <n-menu :options="menuOptions" :default-expand-all="true" v-model:value="currentSelect"></n-menu>
-
-            </NConfigProvider>
-          </div>
           <n-scrollbar id="mainregion">
-            <router-view v-slot="{ Component }">
-              <keep-alive>
-                <component :is="Component"></component>
-              </keep-alive>
-            </router-view>
-
+            <Settings />
           </n-scrollbar>
-
         </div>
       </NDialogProvider>
     </NMessageProvider>
   </NConfigProvider>
-
 </template>
 
 <style>
@@ -95,11 +38,15 @@ const menuOptions = ref([
   width: 100%;
   background-color: #0d1117;
   max-height: 100vh;
+  padding-left: 1%;
+  padding-right: 1%;
 }
+
 .markdown-body p {
   font-family: cursive;
   font-size: 19px;
 }
+
 .markdown-body pre {
   /* max-height: 1000px; */
   scroll-behavior: auto;

@@ -14,8 +14,6 @@ public:
   PrintMsgStation();
 
 public:
-  const Json::Value workWithString(std::string& str_);
-  const Json::Value workWithJson(Json::Value& _v);
   void workWithStringAsync(std::string str_,std::string& ipinfo,std::string & from_type, std::function<void(const Json::Value &)>);
   void workWithJsonAsync(Json::Value _v,std::function<void(const Json::Value &)>);
 
