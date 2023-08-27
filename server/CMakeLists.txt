@@ -37,11 +37,11 @@ add_executable(PrintWebPage
   net_interface/printwebsocket.h
 
   gui/bg.qrc
-  gui/movewidget.cpp
-  gui/movewidget.h
-  gui/printwidget.cpp
-  gui/printwidget.h
-  gui/printwidget.ui
+  # gui/movewidget.cpp
+  # gui/movewidget.h
+  # gui/printwidget.cpp
+  # gui/printwidget.h
+  # gui/printwidget.ui
   gui/app_win32.rc
 )
 target_link_libraries(PrintWebPage
