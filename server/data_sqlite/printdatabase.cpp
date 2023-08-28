@@ -67,7 +67,6 @@ PrintDatabase::printerConfigInsert(const PrinterConfig &pc) {
         pc.Name, pc.PrinterName, pc.TopMargin, pc.BottomMargin, pc.LeftMargin,
         pc.RightMargin, pc.Orientation, pc.PaperName, pc.SaveType,
         pc.PaperWidthInmm, pc.PaperHeightInmm);
-    qDebug() << QString::fromStdString(insert_sql);
     if (_query->exec(QString::fromStdString(insert_sql))) {
       return std::make_tuple(true, "");
     }
@@ -209,12 +208,10 @@ bool PrintDatabase::printedPageInsert(const PrintedPage &pp_) {
                     pp_.ConfigName, pp_.PrintMode, pp_.IsSuccess ? 1 : 0);
 
     QString _q = QString::fromStdString(query_sql);
-    qDebug() << _q;
     if (_query->exec(_q)) {
       return true;
     }
     auto err = _query->lastQuery();
-    qDebug() << err;
     return false;
   } catch (...) {
     return false;

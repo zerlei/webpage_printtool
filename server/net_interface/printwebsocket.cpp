@@ -34,7 +34,6 @@ void PrintWebSocket::handleNewMessage(
 void PrintWebSocket::handleNewConnection(
     const HttpRequestPtr &, const WebSocketConnectionPtr &webconnection) {
   _webconnections.push_back(webconnection);
-  qDebug() << "WebSoc Count:" << _webconnections.size();
 }
 
 void PrintWebSocket::handleConnectionClosed(

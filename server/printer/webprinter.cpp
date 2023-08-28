@@ -8,13 +8,16 @@
 #include <QPdfDocument>
 #include <qbuffer.h>
 #include <qdatetime.h>
+#include <qdebug.h>
 #include <qevent.h>
+#include <qimage.h>
 #include <qimagewriter.h>
 #include <qmargins.h>
 #include <qnamespace.h>
 #include <qpagelayout.h>
 #include <qpagesize.h>
 #include <qpdfdocument.h>
+#include <qprinter.h>
 #include <qsize.h>
 #include <string>
 
@@ -68,13 +71,18 @@ WebPrinter::WebPrinter()
                 }
 
                 if (SaveType.at(1) == '1' || SaveType.at(2) == '1') {
+                  // 只渲染第一张pdf 1mm 有10个像素点
                   auto image = _pdf_documnet->render(
-                      _pdf_documnet->pageCount(),
-                      QSize(printer->PaperWidthInmm, printer->PaperHeightInmm));
+                      0, QSize(printer->PaperWidthInmm * 10,
+                               printer->PaperHeightInmm * 10));
                   // 保存png 图片
                   if (SaveType.at(1) == '1') {
-                    QImageWriter writer(fileName + "./png", "png");
-                    writer.write(image);
+                    QImageWriter writer(fileName + ".png", "png");
+                    writer.setQuality(100);
+                    if (writer.canWrite()) {
+                      writer.write(image);
+                    } else {
+                    }
                   }
                   // 打印
                   if (SaveType.at(2) == '1') {
@@ -108,9 +116,28 @@ WebPrinter::WebPrinter()
                             // 是否使用打印机默认配置
                             if (SaveType.at(3) == '1') {
                               _current_print->setPageLayout(layout);
-                              _current_print->setResolution(4000);
+                              _current_print->setResolution(600);
                             }
-
+                            // qDebug() << _current_print->pageRect(
+                            //     QPrinter::Unit::Millimeter);
+                            // qDebug()
+                            //     <<
+                            //     _current_print->pageRect(QPrinter::Unit::Point);
+                            // qDebug()
+                            //     <<
+                            //     _current_print->pageRect(QPrinter::Unit::Inch);
+                            // qDebug()
+                            //     <<
+                            //     _current_print->pageRect(QPrinter::Unit::Pica);
+                            // qDebug()
+                            //     <<
+                            //     _current_print->pageRect(QPrinter::Unit::Didot);
+                            // qDebug()
+                            //     <<
+                            //     _current_print->pageRect(QPrinter::Unit::Cicero);
+                            // qDebug() << _current_print->pageRect(
+                            //     QPrinter::Unit::DevicePixel);
+                            // break;
                             QPainter painter;
                             if (!painter.begin(_current_print)) {
                               callf(false, "打印机错误!");
@@ -124,7 +151,12 @@ WebPrinter::WebPrinter()
                               delete _current_print;
                               return;
                             };
-                            painter.drawImage(0, 0, image);
+
+                            const auto rect = _current_print->pageRect(
+                                QPrinter::Unit::DevicePixel);
+                            painter.drawImage(
+                                rect, image,
+                                QRectF(0, 0, image.width(), image.height()));
                             painter.end();
                             break;
                           }
