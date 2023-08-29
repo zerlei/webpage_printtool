@@ -5,7 +5,8 @@ import {
     NSpace,
     NDataTable,
     useDialog,
-    NInput
+    NInput,
+NTag
 
 } from 'naive-ui'
 import { Add } from "@vicons/ionicons5";
@@ -19,13 +20,108 @@ const _configModal = ref(null)
 const tableData = ref([])
 const columns = [
     { title: "名称", key: "Name" },
-    { title: "打印机", key: "PrinterName" },
-    { title: "纸张", key: "PaperName" },
+    { title: "宽度mm", key: "PaperWidthInmm" },
+    { title: "高度mm", key: "PaperHeightInmm" },
     { title: "边距👈mm", key: "LeftMargin" },
     { title: "边距👆mm", key: "TopMargin" },
     { title: "边距👉mm", key: "RightMargin" },
     { title: "边距👇mm", key: "BottomMargin" },
-    { title: "方向", key: "Orientation" },
+    { title: "打印机", key: "PrinterName" },
+    { title: "打印机纸张", key: "PaperName" },
+    { title: "打印方向", key: "Orientation" },
+    {
+        title: "保存类型", key: "SaveType",width:350, render(row) {
+
+            if(['',null,undefined].includes(row.SaveType)) {
+                return row.SaveType
+            } else {
+                let arr = [
+
+                    h(
+                        NTag,
+                        {
+                            type:"success",
+                        },
+                        {
+                            default:()=>{
+                                if(row.SaveType[0] == "1") {
+                                    return "保存pdf"
+                                } else {
+                                    return "不保存pdf"
+                                }
+                            }
+                        }
+
+                    ),
+                    h(
+                        NTag,
+                        {
+                            type:"success",
+                        },
+                        {
+                            default:()=>{
+                                if(row.SaveType[1] == "1") {
+                                    return "保存png图片"
+                                } else {
+                                    return "不保存png图片"
+                                }
+                            }
+                        }
+
+                    ),
+                    h(
+                        NTag,
+                        {
+                            type:"success",
+                        },
+                        {
+                            default:()=>{
+                                if(row.SaveType[2] == "1") {
+                                    return "使用打印机"
+                                } else {
+                                    return "不使用打印机"
+                                }
+                            }
+                        }
+
+                    ),
+                    h(
+                        NTag,
+                        {
+                            type:"success",
+                        },
+                        {
+                            default:()=>{
+                                if(row.SaveType[3] == "1") {
+                                    return "使用打印机自定义配置"
+                                } else {
+                                    return "使用打印机默认配置"
+                                }
+                            }
+                        }
+
+                    ),
+
+
+                ]
+     
+
+                return h(
+                    NSpace,
+                    {
+                        size:'small'
+                    },
+                    {
+                        default:()=>arr
+                    }
+                    
+                )
+
+            }
+
+        }
+    },
+
     {
         title: "操作", key: "op", width: "200", fixed: "right",
         render(row) {
@@ -143,7 +239,7 @@ onMounted(async () => {
     getPrinterConfigInfo();
 
     let res2 = await ServerNet.send({ MsgType: "GetWebsocketUrl" })
-    if(res2.IsSuccess) {
+    if (res2.IsSuccess) {
         _webSocketUrl.value = res2.Result.WebSocUrl
     }
 })
@@ -179,9 +275,6 @@ onMounted(async () => {
         </n-input>
 
     </n-space>
-
 </template>
 
-<style>
-
-</style>
+<style></style>
