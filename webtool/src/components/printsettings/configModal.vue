@@ -43,22 +43,29 @@ const Margin = ref({
     Left: 0,
     Bottom: 0,
     Right: 0
-
 })
+
+const PaperWidthInmm = ref(210)
+const PaperHeightInmm = ref(297)
+const IsSavePdf = ref(true)
+const IsSavePng = ref(false)
+const IsUsePrinter = ref(true)
+const IsUseThisConfig = ref(false)
 const railStyle = ref(({
     focused,
     checked
 }) => {
     const style = {};
+    style.color = 'black'
     if (checked) {
-        style.background = "#f0a020";
+        style.background = "#36ad6a";
         if (focused) {
-            style.boxShadow = "0 0 0 2px #f0a0200";
+            style.boxShadow = "0 0 0 2px #36ad6a";
         }
     } else {
-        style.background = "#2080f0";
+        style.background = "#c98c33";
         if (focused) {
-            style.boxShadow = "0 0 0 2px #2080f040";
+            style.boxShadow = "0 0 0 2px #c98c33";
         }
     }
     return style;
@@ -78,12 +85,12 @@ watch(Name, (n, o) => {
     } else {
         NameInputStatus.value = 'success'
     }
-})``
+})
 
 async function addOnePrintConfig(ob) {
 
     let res = await ServerNet.send({ MsgType: "AddOnePrintConfig", Data: ob })
-    if (res.IsSuccess ) {
+    if (res.IsSuccess) {
         dialog.success({
             title: '成功',
             content: '添加成功！',
@@ -135,27 +142,29 @@ async function updateOnePrintConfig(ob) {
 }
 //#region 显示效果
 function acceptNext() {
+    // debugger
+    // if (currentStep.value == 0) {
+
+    //     // PrinterInfoData.forEach(e => {
+    //     //     if (e.PrinterName == PrinterChecked.value[0]) {
+    //     //         PaperData.value = e.Papers
+    //     //         if (PaperData.value.length > 0 && PaperChecked.value.length == 0) {
+    //     //             PaperChecked.value = [PaperData.value[0].Id]
+    //     //         }
+    //     //     }
+    //     // })
+
+    //     currentStep.value = currentStep.value + 1
+    //     return
+
     if (currentStep.value == 1) {
-
-        PrinterInfoData.forEach(e => {
-            if (e.PrinterName == PrinterChecked.value[0]) {
-                PaperData.value = e.Papers
-                if (PaperData.value.length > 0 && PaperChecked.value.length == 0) {
-                    PaperChecked.value = [PaperData.value[0].Id]
-                }
-            }
-        })
-        currentStep.value = currentStep.value + 1
         beforedisabled.value = false
-        return
-
-    } else if (currentStep.value == 2) {
         acceptinfo.value = "确定"
         currentStep.value = currentStep.value + 1
         return
 
     }
-    if (currentStep.value == 3) {
+    if (currentStep.value == 2) {
         if (Name.value == "" || Name.value == null) {
             NameInputStatus.value = 'error'
             NameInputPh.value = "❌,输入名字！"
@@ -249,7 +258,20 @@ function setPrintInfoData(data) {
     });
     if (PrinterData.value.length > 0) {
         PrinterChecked.value.push(PrinterData.value[0].PrinterName)
+        PaperData.value = PrinterInfoData[0].Papers
+        PaperChecked.value.push(PaperData.value[0].Id)
     }
+
+}
+const PrinterCheckedChange = (keys) => {
+    PrinterInfoData.forEach(e => {
+        if (e.PrinterName == keys[0]) {
+            PaperData.value = e.Papers
+            if (PaperData.value.length > 0 ) {
+                PaperChecked.value = [PaperData.value[0].Id]
+            }
+        }
+    })
 
 }
 defineExpose({
@@ -258,50 +280,134 @@ defineExpose({
 })
 </script>
 <template>
-
     <n-modal v-model:show="showModal" id="configModal" :mask-closable="false">
         <n-space vertical>
             <n-steps size="small" :current="currentStep" :status="currentStatus">
-                <n-step title="选择一个打印机" description="从当前的打印机中选择一个" />
-                <n-step title="选择纸张" description="然后，这些是打印机支持的纸张" />
-                <n-step title="配置打印机" description="配置。只是记忆一个打印机状态，并不是配置打印机驱动~" />
+                <n-step title="配置" description="做一个打印配置，选择输出格式，起个名字等。" />
+                <n-step title="打印机选择" description="选择（物理）打印机，选择纸张，纸张等要和之前的匹配~" />
             </n-steps>
 
-            <n-data-table v-show="currentStep == 1" :row-key="row => row.PrinterName" :columns="Printercolumns"
-                :data="PrinterData" v-model:checked-row-keys="PrinterChecked" :style="{ height: `300px` }"
-                flex-height />
-            <n-data-table v-show="currentStep == 2" :row-key="row => row.Id" :columns="Papercolumns" :data="PaperData"
-                v-model:checked-row-keys="PaperChecked" :style="{ height: `300px` }" flex-height />
+            <div v-show="currentStep == 1" style="height: 350px;">
+                <n-space style="margin-bottom: 40px;">
+                    名字：
+                    <n-input v-model:value="Name" type="text" v-model:placeholder="NameInputPh"
+                        v-model:status="NameInputStatus" />
+                </n-space>
 
-            <div v-show="currentStep == 3" style="height: 300px;">
+                <n-space style="margin-bottom: 40px;">
+                    尺寸：
+                    <n-input-number v-model:value="PaperWidthInmm" :min="0" placeholder="宽度(mm)">
+                        <template #prefix>
+                            宽度(mm):
+                        </template>
+                    </n-input-number>
+                    <n-input-number v-model:value="PaperHeightInmm" :min="0" placeholder="高度(mm)">
+                        <template #prefix>
+                            高度(mm):
+                        </template>
+                    </n-input-number>
+                </n-space>
+
+
                 <n-space justify="end" vertical>
                     <n-space style="margin-bottom: 40px;">
                         边距：
-                        <n-input-number v-model:value="Margin.Left" :min="0"></n-input-number>
-                        <n-input-number v-model:value="Margin.Top" :min="0"></n-input-number>
-                        <n-input-number v-model:value="Margin.Right" :min="0"></n-input-number>
-                        <n-input-number v-model:value="Margin.Bottom" :min="0"></n-input-number>
+                        <n-input-number style="width: 200px;" v-model:value="Margin.Left" :min="0" placeholder="左边距(mm)">
+
+                            <template #prefix>
+                                左(mm):
+                            </template>
+                        </n-input-number>
+                        <n-input-number style="width: 200px;" v-model:value="Margin.Top" :min="0" placeholder="上边距(mm)">
+                            <template #prefix>
+                                上(mm):
+                            </template>
+                        </n-input-number>
+                        <n-input-number style="width: 200px;" v-model:value="Margin.Right" :min="0" placeholder="右边距(mm)">
+
+                            <template #prefix>
+                                右(mm):
+                            </template>
+                        </n-input-number>
+                        <n-input-number style="width: 200px;" v-model:value="Margin.Bottom" :min="0" placeholder="下边距(mm)">
+                            <template #prefix>
+                                下(mm):
+                            </template>
+                        </n-input-number>
                     </n-space>
 
                     <n-space style="margin-bottom: 40px;">
-                        方向：
-                        <n-switch :rail-style="railStyle" v-model:value="Orientation">
+                        输出：
+                        <n-switch style="color: black;" :rail-style="railStyle" v-model:value="IsSavePdf">
                             <template #checked>
-                                横向
+                                保存pdf
                             </template>
                             <template #unchecked>
-                                纵向
+                                不保存pdf
+                            </template>
+                        </n-switch>
+                        <n-switch :rail-style="railStyle" v-model:value="IsSavePng">
+                            <template #checked>
+                                保存png图片
+                            </template>
+                            <template #unchecked>
+                                不保存png图片
                             </template>
                         </n-switch>
                     </n-space>
-                    <n-space>
-                        名字：
-                        <n-input v-model:value="Name" type="text" v-model:placeholder="NameInputPh"
-                            v-model:status="NameInputStatus" />
-                    </n-space>
+
 
                 </n-space>
             </div>
+
+
+
+            <div v-show="currentStep == 2">
+                <n-space style="margin-bottom: 10px;">
+                    输出：
+                    <n-switch style="color: black;" :rail-style="railStyle" v-model:value="IsUsePrinter">
+                        <template #checked>
+                            使用打印机
+                        </template>
+                        <template #unchecked>
+                            不使用打印机
+                        </template>
+                    </n-switch>
+                    <n-switch :rail-style="railStyle" v-model:value="IsUseThisConfig">
+                        <template #checked>
+                            使用打印机自定义配置
+                        </template>
+                        <template #unchecked>
+                            使用打印机默认配置
+                        </template>
+                    </n-switch>
+
+                    <n-switch :rail-style="railStyle" v-model:value="Orientation">
+                        <template #checked>
+                            横向(正常)
+                        </template>
+                        <template #unchecked>
+                            纵向(90°旋转)
+                        </template>
+                    </n-switch>
+                </n-space>
+                <n-space justify="space-between" :wrap="false">
+                    <div>
+                        <n-data-table :row-key="row => row.PrinterName" :columns="Printercolumns" :data="PrinterData"
+                            :onUpdateCheckedRowKeys="PrinterCheckedChange" v-model:checked-row-keys="PrinterChecked"
+                            :style="{ height: `350px` }" flex-height />
+                    </div>
+                    <div>
+                        <n-data-table :row-key="row => row.Id" :columns="Papercolumns" :data="PaperData"
+                            v-model:checked-row-keys="PaperChecked" :style="{ height: `350px` }" flex-height />
+                    </div>
+                </n-space>
+
+            </div>
+
+
+
+
             <n-space justify="end">
                 <n-button type="warning" v-on:click="cancle">
                     取消

@@ -248,7 +248,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <configModal ref="_configModal" @reload="getPrinterConfigInfo" style="width: 1000px;height: 440px;">
+    <configModal ref="_configModal" @reload="getPrinterConfigInfo" style="width: 1000px;height: 500px;">
     </configModal>
 
     <h2>
