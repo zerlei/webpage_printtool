@@ -28,7 +28,7 @@ ClientWebsoc::ClientWebsoc(PrintMsgStation &printmsgstation)
   connect(&_webSoc, &QWebSocket::disconnected, this,
           &ClientWebsoc::slotDisConnect);
   connect(&_webSoc,
-          QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error), this,
+          QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::errorOccurred), this,
           &ClientWebsoc::slotErr);
   connect(&_webSoc, &QWebSocket::textMessageReceived, this,
           &ClientWebsoc::slotReceiveMsg);

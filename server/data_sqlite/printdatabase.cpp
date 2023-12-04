@@ -108,7 +108,7 @@ PrintDatabase::printerConfigUpdate(const PrinterConfig &pc) {
                        RightMargin = {},
                        SaveType = '{}',
                        PaperWidthInmm = {},
-                       PaperHeightInmm = {},
+                       PaperHeightInmm = {}
                        where Id = {})",
                                   pc.Name, pc.PrinterName, pc.PaperName,
                                   pc.Orientation, pc.TopMargin, pc.BottomMargin,

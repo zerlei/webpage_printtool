@@ -117,6 +117,7 @@ async function addOnePrintConfig(ob) {
 }
 async function updateOnePrintConfig(ob) {
     let res = await ServerNet.send({ MsgType: "UpdateOnePrintConfig", Data: ob })
+
     if (res.IsSuccess) {
         dialog.success({
             title: '成功',
@@ -183,6 +184,17 @@ function acceptNext() {
                 return true
             }
         }).PaperName
+        ob.PaperWidthInmm = PaperWidthInmm.value
+        ob.PaperHeightInmm = PaperHeightInmm.value
+
+        const f = (is)=>{
+            if(is) {
+                return '1'
+            }
+            return '0'
+        }
+
+        ob.SaveType = `${f(IsSavePdf.value)}${f(IsSavePng.value)}${f(IsUsePrinter.value)}${f(IsUseThisConfig.value)}`
         if (type_ == 'add') {
             addOnePrintConfig(ob)
 
