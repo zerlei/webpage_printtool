@@ -9,6 +9,10 @@
 #include <memory>
 #include <string>
 
+/**
+* \brief 打印机配置 
+*
+*/
 struct PrinterConfig {
 
   PrinterConfig(const Json::Value &config_) {

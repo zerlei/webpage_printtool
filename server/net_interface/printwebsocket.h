@@ -29,7 +29,7 @@ public:
   WS_PATH_LIST_END
 private:
   std::list<WebSocketConnectionPtr> _webconnections;
-   PrintMsgStation &_printmsgstation;
+  PrintMsgStation &_printmsgstation;
   std::string JsonValueToString(const Json::Value &);
   bool _is_working{false};
 };
